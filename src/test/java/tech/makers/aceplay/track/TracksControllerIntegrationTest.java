@@ -41,8 +41,8 @@ class TracksControllerIntegrationTest {
   @Test
   @WithMockUser
   void WhenLoggedIn_AndThereAreTracks_TracksIndexReturnsTracks() throws Exception {
-    repository.save(new Track("Blue Line Swinger", "Yo La Tengo", "http://example.org/track.mp3"));
-    repository.save(new Track("Morning Light", "Girls", "http://example.org/track.mp3"));
+    repository.save(new Track("Blue Line Swinger", "Yo La Tengo", "1", "http://example.org/track.mp3"));
+    repository.save(new Track("Morning Light", "Girls", "1", "http://example.org/track.mp3"));
 
     mvc.perform(MockMvcRequestBuilders.get("/api/tracks").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -50,6 +50,7 @@ class TracksControllerIntegrationTest {
         .andExpect(jsonPath("$", hasSize(2)))
         .andExpect(jsonPath("$[0].title").value("Blue Line Swinger"))
         .andExpect(jsonPath("$[0].artist").value("Yo La Tengo"))
+        .andExpect(jsonPath("$[0].userId").value("1"))
         .andExpect(jsonPath("$[0].publicUrl").value("http://example.org/track.mp3"))
         .andExpect(jsonPath("$[1].title").value("Morning Light"));
   }
@@ -66,11 +67,12 @@ class TracksControllerIntegrationTest {
     mvc.perform(
             MockMvcRequestBuilders.post("/api/tracks")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"title\": \"Blue Line Swinger\", \"artist\": \"Yo La Tengo\", \"publicUrl\": \"https://example.org/track.mp3\"}"))
+                .content("{\"title\": \"Blue Line Swinger\", \"artist\": \"Yo La Tengo\", \"userId\": \"1\", \"publicUrl\": \"https://example.org/track.mp3\"}"))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.title").value("Blue Line Swinger"))
         .andExpect(jsonPath("$.artist").value("Yo La Tengo"))
+        .andExpect(jsonPath("$.userId").value("1"))
         .andExpect(jsonPath("$.publicUrl").value("https://example.org/track.mp3"));
 
     Track track = repository.findFirstByOrderByIdAsc();
@@ -91,7 +93,7 @@ class TracksControllerIntegrationTest {
   @Test
   @WithMockUser
   void WhenLoggedIn_TrackUpdateUpdatesTrack() throws Exception {
-    Track track = repository.save(new Track("Blue Line Swinger", "Yo La Tengo", "https://example.org/track.mp3"));
+    Track track = repository.save(new Track("Blue Line Swinger", "Yo La Tengo", "1", "https://example.org/track.mp3"));
     mvc.perform(
             MockMvcRequestBuilders.patch("/api/tracks/" + track.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -100,6 +102,7 @@ class TracksControllerIntegrationTest {
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.title").value("Stars"))
         .andExpect(jsonPath("$.artist").value("Hum"))
+        .andExpect(jsonPath("$.userId").value("1"))
         .andExpect(jsonPath("$.publicUrl").value("https://example.org/track.mp3"));
 
     Track updatedTrack = repository.findById(track.getId()).orElseThrow();
@@ -118,7 +121,7 @@ class TracksControllerIntegrationTest {
 
   @Test
   void WhenLoggedOut_TrackUpdateIsForbidden() throws Exception {
-    Track track = repository.save(new Track("Blue Line Swinger", "Yo La Tengo", "http://example.org/track.mp3"));
+    Track track = repository.save(new Track("Blue Line Swinger", "Yo La Tengo", "1", "http://example.org/track.mp3"));
     mvc.perform(
             MockMvcRequestBuilders.patch("/api/tracks/" + track.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -133,7 +136,7 @@ class TracksControllerIntegrationTest {
   @Test
   @WithMockUser
   void WhenLoggedIn_TrackDeleteDeletesTrack() throws Exception {
-    Track track = repository.save(new Track("Blue Line Swinger", "Yo La Tengo", "https://example.org/track.mp3"));
+    Track track = repository.save(new Track("Blue Line Swinger", "Yo La Tengo", "1", "https://example.org/track.mp3"));
 
     mvc.perform(
             MockMvcRequestBuilders.delete("/api/tracks/" + track.getId()))
@@ -152,7 +155,7 @@ class TracksControllerIntegrationTest {
 
   @Test
   void WhenLoggedOut_TrackDeleteIsForbidden() throws Exception {
-    Track track = repository.save(new Track("Blue Line Swinger", "Yo La Tengo", "http://example.org/track.mp3"));
+    Track track = repository.save(new Track("Blue Line Swinger", "Yo La Tengo", "1", "http://example.org/track.mp3"));
 
     mvc.perform(
             MockMvcRequestBuilders.delete("/api/tracks/" + track.getId()))

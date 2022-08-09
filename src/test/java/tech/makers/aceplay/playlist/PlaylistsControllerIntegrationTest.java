@@ -51,7 +51,7 @@ class PlaylistsControllerIntegrationTest {
   @Test
   @WithMockUser
   void WhenLoggedIn_AndThereArePlaylists_PlaylistIndexReturnsTracks() throws Exception {
-    Track track = trackRepository.save(new Track("Title", "Artist", "https://example.org/"));
+    Track track = trackRepository.save(new Track("Title", "Artist", "1", "https://example.org/"));
     repository.save(new Playlist("My Playlist", Set.of(track)));
     repository.save(new Playlist("Their Playlist"));
 
@@ -83,7 +83,7 @@ class PlaylistsControllerIntegrationTest {
   @Test
   @WithMockUser
   void WhenLoggedIn_AndThereIsAPlaylist_PlaylistGetReturnsPlaylist() throws Exception {
-    Track track = trackRepository.save(new Track("Title", "Artist", "https://example.org/"));
+    Track track = trackRepository.save(new Track("Title", "Artist", "1", "https://example.org/"));
     Playlist playlist = repository.save(new Playlist("My Playlist", Set.of(track)));
 
     mvc.perform(MockMvcRequestBuilders.get("/api/playlists/" + playlist.getId()).contentType(MediaType.APPLICATION_JSON))
@@ -124,7 +124,7 @@ class PlaylistsControllerIntegrationTest {
 
   @Test
   void WhenLoggedOut_PlaylistAddTrackIsForbidden() throws Exception {
-    Track track = trackRepository.save(new Track("Title", "Artist", "https://example.org/"));
+    Track track = trackRepository.save(new Track("Title", "Artist", "1", "https://example.org/"));
     Playlist playlist = repository.save(new Playlist("My Playlist"));
 
     mvc.perform(
@@ -140,7 +140,7 @@ class PlaylistsControllerIntegrationTest {
   @Test
   @WithMockUser
   void WhenLoggedIn_TracksPostCreatesNewTrack() throws Exception {
-    Track track = trackRepository.save(new Track("Title", "Artist", "https://example.org/"));
+    Track track = trackRepository.save(new Track("Title", "Artist", "1", "https://example.org/"));
     Playlist playlist = repository.save(new Playlist("My Playlist"));
 
     mvc.perform(

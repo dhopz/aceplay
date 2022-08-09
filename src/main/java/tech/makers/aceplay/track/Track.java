@@ -18,18 +18,21 @@ public class Track {
 
   private String artist;
 
+  private String userId;
+
   private URL publicUrl;
 
   public Track() { }
 
-  public Track(String title, String artist, URL publicUrl) {
+  public Track(String title, String artist, String userId, URL publicUrl) {
     this.title = title;
     this.artist = artist;
     this.publicUrl = publicUrl;
+    this.userId = userId;
   }
 
-  public Track(String title, String artist, String publicUrl) throws MalformedURLException {
-    this(title, artist, new URL(publicUrl));
+  public Track(String title, String artist, String userId, String publicUrl) throws MalformedURLException {
+    this(title, artist, userId, new URL(publicUrl));
   }
 
   public String toString() {
@@ -56,6 +59,8 @@ public class Track {
   public void setArtist(String artist) {
     this.artist = artist;
   }
+
+  public String getUserId() { return this.userId; }
 
   public URL getPublicUrl() {
     return publicUrl;
