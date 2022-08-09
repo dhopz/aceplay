@@ -41,4 +41,13 @@ public class PlaylistsController {
     playlistRepository.save(playlist);
     return track;
   }
+  @GetMapping("/api/playlists/uncool")
+  public Iterable<Playlist> uncoolPlayLists() {
+    return playlistRepository.findAllUncool();
+  }
+
+  @GetMapping("/api/playlists/cool")
+  public Iterable<Playlist> coolPlayLists() {
+    return playlistRepository.findAllCool();
+  }
 }

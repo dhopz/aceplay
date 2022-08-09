@@ -15,8 +15,12 @@ public class Playlist {
 
   private String name;
 
+  @Column(columnDefinition = "BOOLEAN DEFAULT false")
+  private boolean cool;
+
   @ManyToMany(fetch = FetchType.EAGER)
   private Set<Track> tracks;
+
 
   public Playlist() {}
 
