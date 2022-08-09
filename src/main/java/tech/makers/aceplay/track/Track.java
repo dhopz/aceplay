@@ -18,20 +18,20 @@ public class Track {
 
   private String artist;
 
-  private String userId;
+  private int userId;
 
   private URL publicUrl;
 
   public Track() { }
 
-  public Track(String title, String artist, String userId, URL publicUrl) {
+  public Track(String title, String artist, int userId, URL publicUrl) {
     this.title = title;
     this.artist = artist;
     this.publicUrl = publicUrl;
     this.userId = userId;
   }
 
-  public Track(String title, String artist, String userId, String publicUrl) throws MalformedURLException {
+  public Track(String title, String artist, int userId, String publicUrl) throws MalformedURLException {
     this(title, artist, userId, new URL(publicUrl));
   }
 
@@ -60,7 +60,7 @@ public class Track {
     this.artist = artist;
   }
 
-  public String getUserId() { return this.userId; }
+  public int getUserId() { return this.userId; }
 
   public URL getPublicUrl() {
     return publicUrl;

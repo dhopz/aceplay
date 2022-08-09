@@ -20,17 +20,17 @@ class TrackTest {
 
   @Test
   void testConstructs() throws MalformedURLException {
-    Track subject = new Track("Hello, world!", "Sarah", "1", "https://example.org/track.mp3");
+    Track subject = new Track("Hello, world!", "Sarah", 1, "https://example.org/track.mp3");
     assertEquals("Hello, world!", subject.getTitle());
     assertEquals("Sarah", subject.getArtist());
     assertEquals("https://example.org/track.mp3", subject.getPublicUrl().toString());
     assertEquals(null, subject.getId());
-    assertEquals("1", subject.getUserId());
+    assertEquals(1.0, subject.getUserId());
   }
 
   @Test
   void testToString() throws MalformedURLException {
-    Track subject = new Track("Hello, world!", "Sarah", "1", "https://example.org/track.mp3");
+    Track subject = new Track("Hello, world!", "Sarah", 1, "https://example.org/track.mp3");
     assertEquals(
         "Track[id=null title='Hello, world!' artist='Sarah' publicUrl='https://example.org/track.mp3']",
         subject.toString());

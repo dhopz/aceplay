@@ -15,17 +15,20 @@ public class Playlist {
 
   private String name;
 
+  private int userId;
+
   @ManyToMany(fetch = FetchType.EAGER)
   private Set<Track> tracks;
 
   public Playlist() {}
 
-  public Playlist(String name) {
-    this(name, null);
+  public Playlist(String name, int userId) {
+    this(name, userId, null);
   }
 
-  public Playlist(String name, Set<Track> tracks) {
+  public Playlist(String name, int userId, Set<Track> tracks) {
     this.name = name;
+    this.userId = userId;
     this.tracks = tracks;
   }
 
@@ -41,6 +44,11 @@ public class Playlist {
     return id;
   }
 
+  public int getUserId() {
+    return this.userId;
+  }
+
+
   @JsonGetter("tracks")
   public Set<Track> getTracks() {
     if (null == tracks) {
@@ -51,6 +59,6 @@ public class Playlist {
 
   @Override
   public String toString() {
-    return String.format("Playlist[id=%d name='%s']", id, name);
+    return String.format("Playlist[id=%d userId=%d name='%s']", id, userId, name);
   }
 }
