@@ -24,14 +24,17 @@ public class Playlist {
 
   public Playlist() {}
 
-  public Playlist(String name) {
-    this(name, null);
+  public Playlist(String name, Boolean cool) {
+    this(name, null, cool);
   }
 
-  public Playlist(String name, Set<Track> tracks) {
+  public Playlist(String name, Set<Track> tracks, Boolean cool) {
     this.name = name;
     this.tracks = tracks;
+    this.cool = cool;
   }
+
+
 
   public String getName() {
     return name;
@@ -39,6 +42,14 @@ public class Playlist {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public Boolean getCool(){
+    return cool;
+  }
+
+  public void setCool(Boolean cool){
+    this.cool = cool;
   }
 
   public Long getId() {
@@ -55,6 +66,6 @@ public class Playlist {
 
   @Override
   public String toString() {
-    return String.format("Playlist[id=%d name='%s']", id, name);
+    return String.format("Playlist[id=%d name='%s' cool='%s']", id, name, cool);
   }
 }

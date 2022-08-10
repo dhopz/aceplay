@@ -12,10 +12,10 @@ public interface PlaylistRepository extends CrudRepository<Playlist, Long> {
   Playlist findFirstByOrderByIdAsc();
 
   @Query(value = "SELECT * FROM playlist WHERE cool = false",nativeQuery = true)
-  public List<Playlist> findAllUncool();
+  List<Playlist> findAllUncool();
 
   @Query(value = "SELECT * FROM playlist WHERE cool = true", nativeQuery = true)
-  public List<Playlist> findAllCool();
+  List<Playlist> findAllCool();
 }
 
 
