@@ -15,20 +15,20 @@ public class Playlist {
 
   private String name;
 
-  private int userId;
+  private String username;
 
   @ManyToMany(fetch = FetchType.EAGER)
   private Set<Track> tracks;
 
   public Playlist() {}
 
-  public Playlist(String name, int userId) {
-    this(name, userId, null);
+  public Playlist(String name, String username) {
+    this(name, username, null);
   }
 
-  public Playlist(String name, int userId, Set<Track> tracks) {
+  public Playlist(String name, String username, Set<Track> tracks) {
     this.name = name;
-    this.userId = userId;
+    this.username = username;
     this.tracks = tracks;
   }
 
@@ -44,8 +44,8 @@ public class Playlist {
     return id;
   }
 
-  public int getUserId() {
-    return this.userId;
+  public String getUsername() {
+    return this.username;
   }
 
 
@@ -59,6 +59,6 @@ public class Playlist {
 
   @Override
   public String toString() {
-    return String.format("Playlist[id=%d userId=%d name='%s']", id, userId, name);
+    return String.format("Playlist[id=%d username='%s' name='%s']", id, username, name);
   }
 }

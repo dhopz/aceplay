@@ -1,11 +1,14 @@
 package tech.makers.aceplay.track;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.Principal;
 
 // https://www.youtube.com/watch?v=5r3QU09v7ig&t=2999s
 @Entity
@@ -18,26 +21,27 @@ public class Track {
 
   private String artist;
 
-  private int userId;
+  private String username;
 
   private URL publicUrl;
 
   public Track() { }
 
-  public Track(String title, String artist, int userId, URL publicUrl) {
+  public Track(String title, String artist, URL publicUrl) {
+    Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     this.title = title;
     this.artist = artist;
     this.publicUrl = publicUrl;
-    this.userId = userId;
+    this.username = principal.getName();
   }
 
-  public Track(String title, String artist, int userId, String publicUrl) throws MalformedURLException {
-    this(title, artist, userId, new URL(publicUrl));
+  public Track(String title, String artist, String publicUrl) throws MalformedURLException {
+    this(title, artist, new URL(publicUrl));
   }
 
   public String toString() {
     return String.format(
-        "Track[id=%d title='%s' artist='%s' publicUrl='%s']", id, title, artist, publicUrl);
+        "Track[id=%d username=%s title='%s' artist='%s' publicUrl='%s']", id, username, title, artist, publicUrl);
   }
 
   public Long getId() {
@@ -60,7 +64,7 @@ public class Track {
     this.artist = artist;
   }
 
-  public int getUserId() { return this.userId; }
+  public String getUsername() { return this.username; }
 
   public URL getPublicUrl() {
     return publicUrl;

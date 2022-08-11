@@ -13,9 +13,13 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import tech.makers.aceplay.track.Track;
+import tech.makers.aceplay.track.TrackRepository;
 import tech.makers.aceplay.user.User;
 import tech.makers.aceplay.user.UserRepository;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 // https://www.youtube.com/watch?v=L4vkcgRnw2g&t=1853s
@@ -25,6 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class SessionControllerIntegrationTest {
   @Autowired private MockMvc mvc;
+
+  @Autowired private TrackRepository trackRepository;
 
   @Autowired private UserRepository repository;
 
@@ -62,4 +68,38 @@ class SessionControllerIntegrationTest {
                 .content("{\"username\": \"kay\", \"password\": \"wrong\"}"))
         .andExpect(status().isForbidden());
   }
+
+  @Test
+  void principalTest() throws Exception {
+    repository.save(new User("kay", passwordEncoder.encode("pass")));
+    MvcResult result =
+            mvc.perform(
+                            MockMvcRequestBuilders.post("/api/session")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content("{\"username\": \"kay\", \"password\": \"pass\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.user.username").value("kay"))
+                    .andReturn();
+
+    String response = result.getResponse().getContentAsString();
+    String token = JsonPath.parse(response).read("$.token");
+
+    // Check if we can GET /api/session to prove we're logged in
+    mvc.perform(MockMvcRequestBuilders.get("/api/session").header("Authorization", token))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.user.username").value("kay"));
+
+    trackRepository.save(new Track("Blue Line Swinger", "Yo La Tengo", "http://example.org/track.mp3"));
+
+    mvc.perform(MockMvcRequestBuilders.get("/api/tracks").contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$[0].title").value("Blue Line Swinger"))
+            .andExpect(jsonPath("$[0].artist").value("Yo La Tengo"))
+//            .andExpect(jsonPath("$[0].username").value("kay"))
+            .andExpect(jsonPath("$[0].publicUrl").value("http://example.org/track.mp3"));
+  }
+
 }

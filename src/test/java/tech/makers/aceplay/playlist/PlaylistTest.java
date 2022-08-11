@@ -12,18 +12,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class PlaylistTest {
   @Test
   void testConstructs() {
-    Playlist subject = new Playlist("Hello, world!", 1, Set.of());
+    Playlist subject = new Playlist("Hello, world!", "Jim", Set.of());
     assertEquals("Hello, world!", subject.getName());
-    assertEquals(1, subject.getUserId());
+    assertEquals("Jim", subject.getUsername());
     assertEquals(Set.of(), subject.getTracks());
     assertEquals(null, subject.getId());
   }
 
   @Test
   void testToString() {
-    Playlist subject = new Playlist("Hello, world!", 1);
+    Playlist subject = new Playlist("Hello, world!", "Jim");
     assertEquals(
-        "Playlist[id=null userId=1 name='Hello, world!']",
+        "Playlist[id=null username='Jim' name='Hello, world!']",
         subject.toString());
   }
 }

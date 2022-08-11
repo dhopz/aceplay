@@ -1,9 +1,12 @@
 package tech.makers.aceplay.track;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 import tech.makers.aceplay.track.Track;
 
 import java.net.MalformedURLException;
+import java.security.Principal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -18,22 +21,23 @@ class TrackTest {
 //    assertEquals(null, subject.getId());
 //  }
 
+
   @Test
   void testConstructs() throws MalformedURLException {
-    Track subject = new Track("Hello, world!", "Sarah", 1, "https://example.org/track.mp3");
+    Track subject = new Track("Hello, world!", "Sarah", "https://example.org/track.mp3");
     assertEquals("Hello, world!", subject.getTitle());
     assertEquals("Sarah", subject.getArtist());
     assertEquals("https://example.org/track.mp3", subject.getPublicUrl().toString());
     assertEquals(null, subject.getId());
-    assertEquals(1.0, subject.getUserId());
+    assertEquals(null, subject.getUsername());
   }
 
   @Test
   void testToString() throws MalformedURLException {
-    Track subject = new Track("Hello, world!", "Sarah", 1, "https://example.org/track.mp3");
+    String result = "Track[id=null title='Hello, world!' artist='Sarah' username= publicUrl='https://example.org/track.mp3']";
+    Track subject = new Track("Hello, world!", "Sarah", "https://example.org/track.mp3");
     assertEquals(
-        "Track[id=null title='Hello, world!' artist='Sarah' publicUrl='https://example.org/track.mp3']",
-        subject.toString());
+        result, subject.toString());
   }
 
   @Test
