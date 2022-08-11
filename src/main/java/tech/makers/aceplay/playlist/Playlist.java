@@ -2,6 +2,7 @@ package tech.makers.aceplay.playlist;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import tech.makers.aceplay.track.Track;
+import tech.makers.aceplay.user.User;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -18,6 +19,9 @@ public class Playlist {
 
   @ManyToMany(fetch = FetchType.EAGER)
   private Set<Track> tracks;
+
+  @ManyToOne(fetch = FetchType.EAGER)
+  private User user;
 
   public Playlist() {}
 
@@ -36,6 +40,10 @@ public class Playlist {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public void setUser(User user) {
+    this.user = user;
   }
 
   public Long getId() {

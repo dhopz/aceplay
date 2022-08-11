@@ -1,11 +1,9 @@
 package tech.makers.aceplay.track;
 
 import org.springframework.security.core.context.SecurityContextHolder;
+import tech.makers.aceplay.user.User;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.Principal;
@@ -22,6 +20,9 @@ public class Track {
   private String artist;
 
   private URL publicUrl;
+
+  @ManyToOne(fetch = FetchType.EAGER)
+  private User user;
 
   public Track() { }
 
@@ -71,4 +72,10 @@ public class Track {
   public void setPublicUrl(URL publicUrl) {
     this.publicUrl = publicUrl;
   }
+
+  public void setUser(User user) {
+    this.user = user;
+  }
 }
+
+

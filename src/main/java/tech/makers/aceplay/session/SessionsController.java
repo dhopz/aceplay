@@ -25,7 +25,6 @@ public class SessionsController {
 
   @GetMapping("/api/session")
   public Session get(Principal principal, @RequestHeader("authorization") String token) {
-    System.out.println(principal);
     User user = userRepository.findByUsername(principal.getName());
     return new Session(user, token);
   }
