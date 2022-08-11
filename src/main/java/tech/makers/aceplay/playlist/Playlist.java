@@ -20,14 +20,39 @@ public class Playlist {
 
   public Playlist() {}
 
+//  public Playlist(String name) {
+//    this(name, null);
+//  }
+
   public Playlist(String name) {
-    this(name, null);
+    if (name == null || name.isEmpty() || name.trim().isEmpty()) {
+      this.name = "PlayList A";
+    } else{
+      this.name = name;
+    }
+    this.tracks = null;
   }
 
   public Playlist(String name, Set<Track> tracks) {
-    this.name = name;
+    if (name == null || name.isEmpty() || name.trim().isEmpty()) {
+      this.name = "PlayList A";
+    } else{
+      this.name = name;
+    }
     this.tracks = tracks;
   }
+
+  public String checkIfNameIsEmpty(String name) {
+    System.out.println("Do I get here?.");
+    if (name == null || name.isEmpty() || name.trim().isEmpty()) {
+      System.out.println("String is null, empty or blank.");
+      return "Newbie Playlist";
+    } else {
+      System.out.println("String is neither null, empty nor blank");
+      return name;
+    }
+  }
+
 
   public String getName() {
     return name;
