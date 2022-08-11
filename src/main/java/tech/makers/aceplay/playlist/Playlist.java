@@ -15,6 +15,9 @@ public class Playlist {
 
   private String name;
 
+  @Column(name = "user_id")
+  private Integer user_id;
+
   @Column(columnDefinition = "BOOLEAN DEFAULT false")
   private boolean cool;
 
@@ -25,13 +28,14 @@ public class Playlist {
   public Playlist() {}
 
   public Playlist(String name, Boolean cool) {
-    this(name, null, cool);
+    this(name, null, cool, null);
   }
 
-  public Playlist(String name, Set<Track> tracks, Boolean cool) {
+  public Playlist(String name, Set<Track> tracks, Boolean cool, Integer user_id) {
     this.name = name;
     this.tracks = tracks;
     this.cool = cool;
+    this.user_id = user_id;
   }
 
 

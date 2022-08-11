@@ -1,9 +1,6 @@
 package tech.makers.aceplay.track;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -14,6 +11,9 @@ public class Track {
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
+  @Column(name = "user_id")
+  private Integer user_id;
+
   private String title;
 
   private String artist;
@@ -22,19 +22,24 @@ public class Track {
 
   public Track() { }
 
-  public Track(String title, String artist, URL publicUrl) {
+  public Track(String title, String artist, URL publicUrl, Integer user_id) {
     this.title = title;
     this.artist = artist;
     this.publicUrl = publicUrl;
+    this.user_id = user_id;
   }
 
-  public Track(String title, String artist, String publicUrl) throws MalformedURLException {
-    this(title, artist, new URL(publicUrl));
-  }
+//  public Track(String title, String artist, String publicUrl) throws MalformedURLException {
+//    this(title, artist, new URL(publicUrl));
+//  }
 
   public String toString() {
     return String.format(
         "Track[id=%d title='%s' artist='%s' publicUrl='%s']", id, title, artist, publicUrl);
+  }
+
+  public int getUserId(){
+    return this.user_id;
   }
 
   public Long getId() {
