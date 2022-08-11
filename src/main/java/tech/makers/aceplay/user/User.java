@@ -1,8 +1,11 @@
 package tech.makers.aceplay.user;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import tech.makers.aceplay.playlist.Playlist;
+import tech.makers.aceplay.track.Track;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -24,11 +27,21 @@ public class User implements UserDetails {
 
   private String password;
 
+  @OneToMany(fetch = FetchType.EAGER)
+  private Set<Track> tracks;
+
+  @OneToMany(fetch = FetchType.EAGER)
+  private Set<Playlist> playlists;
+
   protected User() {}
 
-  public User(String username, String password) {
+  public User(String username, String password) { this(username, password, null, null); }
+
+  public User(String username, String password, Set<Track> tracks, Set<Playlist> playlists) {
     this.username = username;
     this.password = password;
+    this.tracks = tracks;
+    this.playlists = playlists;
   }
 
   public Long getId() {
@@ -69,6 +82,22 @@ public class User implements UserDetails {
   @Override
   public boolean isEnabled() {
     return true;
+  }
+
+  @JsonGetter("tracks")
+  public Set<Track> getTracks() {
+    if (null == tracks) {
+      return Set.of();
+    }
+    return tracks;
+  }
+
+  @JsonGetter("playlists")
+  public Set<Playlist> getPlaylists() {
+    if (null == playlists) {
+      return Set.of();
+    }
+    return playlists;
   }
 
   @Override

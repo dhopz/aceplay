@@ -66,12 +66,11 @@ class TracksControllerIntegrationTest {
     mvc.perform(
             MockMvcRequestBuilders.post("/api/tracks")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"title\": \"Blue Line Swinger\", \"artist\": \"Yo La Tengo\", \"username\": \"Jim\", \"publicUrl\": \"https://example.org/track.mp3\"}"))
+                .content("{\"title\": \"Blue Line Swinger\", \"artist\": \"Yo La Tengo\", \"publicUrl\": \"https://example.org/track.mp3\"}"))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.title").value("Blue Line Swinger"))
         .andExpect(jsonPath("$.artist").value("Yo La Tengo"))
-        .andExpect(jsonPath("$.username").value("Jim"))
         .andExpect(jsonPath("$.publicUrl").value("https://example.org/track.mp3"));
 
     Track track = repository.findFirstByOrderByIdAsc();
@@ -101,7 +100,6 @@ class TracksControllerIntegrationTest {
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.title").value("Stars"))
         .andExpect(jsonPath("$.artist").value("Hum"))
-        .andExpect(jsonPath("$.username").value("Jim"))
         .andExpect(jsonPath("$.publicUrl").value("https://example.org/track.mp3"));
 
     Track updatedTrack = repository.findById(track.getId()).orElseThrow();

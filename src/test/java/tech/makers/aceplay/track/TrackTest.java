@@ -29,12 +29,11 @@ class TrackTest {
     assertEquals("Sarah", subject.getArtist());
     assertEquals("https://example.org/track.mp3", subject.getPublicUrl().toString());
     assertEquals(null, subject.getId());
-    assertEquals(null, subject.getUsername());
   }
 
   @Test
   void testToString() throws MalformedURLException {
-    String result = "Track[id=null title='Hello, world!' artist='Sarah' username= publicUrl='https://example.org/track.mp3']";
+    String result = "Track[id=null title='Hello, world!' artist='Sarah' publicUrl='https://example.org/track.mp3']";
     Track subject = new Track("Hello, world!", "Sarah", "https://example.org/track.mp3");
     assertEquals(
         result, subject.toString());

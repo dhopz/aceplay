@@ -21,18 +21,14 @@ public class Track {
 
   private String artist;
 
-  private String username;
-
   private URL publicUrl;
 
   public Track() { }
 
   public Track(String title, String artist, URL publicUrl) {
-    Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     this.title = title;
     this.artist = artist;
     this.publicUrl = publicUrl;
-    this.username = principal.getName();
   }
 
   public Track(String title, String artist, String publicUrl) throws MalformedURLException {
@@ -41,7 +37,7 @@ public class Track {
 
   public String toString() {
     return String.format(
-        "Track[id=%d username=%s title='%s' artist='%s' publicUrl='%s']", id, username, title, artist, publicUrl);
+        "Track[id=%d title='%s' artist='%s' publicUrl='%s']", id, title, artist, publicUrl);
   }
 
   public Long getId() {
@@ -63,8 +59,6 @@ public class Track {
   public void setArtist(String artist) {
     this.artist = artist;
   }
-
-  public String getUsername() { return this.username; }
 
   public URL getPublicUrl() {
     return publicUrl;

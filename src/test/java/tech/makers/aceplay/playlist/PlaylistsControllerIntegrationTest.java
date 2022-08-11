@@ -52,16 +52,15 @@ class PlaylistsControllerIntegrationTest {
   @WithMockUser
   void WhenLoggedIn_AndThereArePlaylists_PlaylistIndexReturnsTracks() throws Exception {
     Track track = trackRepository.save(new Track("Title", "Artist", "https://example.org/"));
-    repository.save(new Playlist("My Playlist", "Jim", Set.of(track)));
+    repository.save(new Playlist("My Playlist", Set.of(track)));
     // is next line supposed to be a playlist for a different user?
-    repository.save(new Playlist("Their Playlist", "Jim"));
+    repository.save(new Playlist("Their Playlist"));
 
     mvc.perform(MockMvcRequestBuilders.get("/api/playlists").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$", hasSize(2)))
         .andExpect(jsonPath("$[0].name").value("My Playlist"))
-        .andExpect(jsonPath("$[0].username").value("Jim"))
         .andExpect(jsonPath("$[0].tracks[0].title").value("Title"))
         .andExpect(jsonPath("$[0].tracks[0].artist").value("Artist"))
         .andExpect(jsonPath("$[0].tracks[0].publicUrl").value("https://example.org/"))
@@ -70,7 +69,7 @@ class PlaylistsControllerIntegrationTest {
 
   @Test
   void WhenLoggedOut_PlaylistsGetReturnsForbidden() throws Exception {
-    Playlist playlist = repository.save(new Playlist("My Playlist", "Jim"));
+    Playlist playlist = repository.save(new Playlist("My Playlist"));
     mvc.perform(MockMvcRequestBuilders.get("/api/playlists/" + playlist.getId()).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isForbidden());
   }
@@ -86,13 +85,12 @@ class PlaylistsControllerIntegrationTest {
   @WithMockUser
   void WhenLoggedIn_AndThereIsAPlaylist_PlaylistGetReturnsPlaylist() throws Exception {
     Track track = trackRepository.save(new Track("Title", "Artist", "https://example.org/"));
-    Playlist playlist = repository.save(new Playlist("My Playlist", "Jim", Set.of(track)));
+    Playlist playlist = repository.save(new Playlist("My Playlist", Set.of(track)));
 
     mvc.perform(MockMvcRequestBuilders.get("/api/playlists/" + playlist.getId()).contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.name").value("My Playlist"))
-        .andExpect(jsonPath("$.username").value("Jim"))
         .andExpect(jsonPath("$.tracks[0].title").value("Title"))
         .andExpect(jsonPath("$.tracks[0].artist").value("Artist"))
         .andExpect(jsonPath("$.tracks[0].publicUrl").value("https://example.org/"));
@@ -128,7 +126,7 @@ class PlaylistsControllerIntegrationTest {
   @Test
   void WhenLoggedOut_PlaylistAddTrackIsForbidden() throws Exception {
     Track track = trackRepository.save(new Track("Title", "Artist", "https://example.org/"));
-    Playlist playlist = repository.save(new Playlist("My Playlist", "Jim"));
+    Playlist playlist = repository.save(new Playlist("My Playlist"));
 
     mvc.perform(
             MockMvcRequestBuilders.put("/api/playlists/" + playlist.getId() + "/tracks")
@@ -144,7 +142,7 @@ class PlaylistsControllerIntegrationTest {
   @WithMockUser
   void WhenLoggedIn_TracksPostCreatesNewTrack() throws Exception {
     Track track = trackRepository.save(new Track("Title", "Artist", "https://example.org/"));
-    Playlist playlist = repository.save(new Playlist("My Playlist", "Jim"));
+    Playlist playlist = repository.save(new Playlist("My Playlist"));
 
     mvc.perform(
             MockMvcRequestBuilders.put("/api/playlists/" + playlist.getId() + "/tracks")
@@ -156,7 +154,7 @@ class PlaylistsControllerIntegrationTest {
 
     Playlist updatedPlaylist = repository.findById(playlist.getId()).orElseThrow();
 
-    assertEquals("Jim", updatedPlaylist.getTracks().size());
+    assertEquals(1, updatedPlaylist.getTracks().size());
     Track includedTrack = updatedPlaylist.getTracks().stream().findFirst().orElseThrow();
     assertEquals(track.getId(), includedTrack.getId());
     assertEquals("Title", includedTrack.getTitle());
