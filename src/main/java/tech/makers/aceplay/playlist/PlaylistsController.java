@@ -17,11 +17,15 @@ public class PlaylistsController {
 
   @GetMapping("/api/playlists")
   public Iterable<Playlist> playlists() {
+    System.out.println("Getting all playlists.");
     return playlistRepository.findAll();
   }
 
   @PostMapping("/api/playlists")
   public Playlist create(@RequestBody Playlist playlist) {
+    System.out.println("Playlist Controller Endpoint.");
+    playlist.setName(playlist.checkIfNameIsEmpty(playlist.getName()));
+
     return playlistRepository.save(playlist);
   }
 
