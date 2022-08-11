@@ -23,8 +23,12 @@ public class PlaylistsController {
 
 
   @GetMapping("/api/playlists")
-  public Iterable<Playlist> playlists() {
-    return playlistRepository.findAll();
+  public Iterable<Playlist> playlists(@RequestHeader("authorization") String token) {
+    String[] chunks = token.split("\\.");
+    Base64.Decoder decoder = Base64.getUrlDecoder();
+    String username = new String(decoder.decode(chunks[1])).split("\"")[3];
+    User user = userRepository.findByUsername(username);
+    return playlistRepository.findByUser(user);
   }
 
   @PostMapping("/api/playlists")

@@ -18,8 +18,12 @@ public class TracksController {
   @Autowired private UserRepository userRepository;
 
   @GetMapping("/api/tracks")
-  public Iterable<Track> index() {
-    return trackRepository.findAll();
+  public Iterable<Track> index(@RequestHeader("authorization") String token) {
+    String[] chunks = token.split("\\.");
+    Base64.Decoder decoder = Base64.getUrlDecoder();
+    String username = new String(decoder.decode(chunks[1])).split("\"")[3];
+    User user = userRepository.findByUsername(username);
+    return trackRepository.findByUser(user);
   }
 
   @PostMapping("/api/tracks")
