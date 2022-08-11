@@ -18,6 +18,8 @@ public class TracksController {
 
   @PostMapping("/api/tracks")
   public Track create(@RequestBody Track track) {
+    track.setArtist(track.checkArtistIsEmpty(track.getArtist()));
+    track.setTitle(track.checkTitleIsEmpty(track.getTitle()));
     return trackRepository.save(track);
   }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import tech.makers.aceplay.track.Track;
 
 import javax.persistence.*;
+import java.util.Random;
 import java.util.Set;
 
 // https://www.youtube.com/watch?v=vreyOZxdb5Y&t=448s
@@ -32,10 +33,19 @@ public class Playlist {
   public String checkIfNameIsEmpty(String name) {
     if (name == null || name.isEmpty() || name.trim().isEmpty()) {
       System.out.println("String is null, empty or blank.");
-      return "Newbie Playlist";
+//      return "Newbie Playlist";
+      return randomPlaylistNameGenerator();
     } else {
       return name;
     }
+  }
+
+  public String randomPlaylistNameGenerator(){
+    String[] newNames = {"Cool","Random","Newbie","Awesome","MegaMix"};
+    Random r = new Random();
+    int randomNumber=r.nextInt(newNames.length);
+    return newNames[randomNumber] + " Playlist";
+
   }
 
   public String getName() {
