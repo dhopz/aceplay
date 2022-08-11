@@ -5,6 +5,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import tech.makers.aceplay.track.Track;
 import tech.makers.aceplay.track.TrackRepository;
+import tech.makers.aceplay.user.User;
+import tech.makers.aceplay.user.UserRepository;
+
+import java.util.Base64;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -15,13 +19,21 @@ public class PlaylistsController {
 
   @Autowired private TrackRepository trackRepository;
 
+  @Autowired private UserRepository userRepository;
+
+
   @GetMapping("/api/playlists")
   public Iterable<Playlist> playlists() {
     return playlistRepository.findAll();
   }
 
   @PostMapping("/api/playlists")
-  public Playlist create(@RequestBody Playlist playlist) {
+  public Playlist create(@RequestBody Playlist playlist, @RequestHeader("authorization") String token) {
+    String[] chunks = token.split("\\.");
+    Base64.Decoder decoder = Base64.getUrlDecoder();
+    String username = new String(decoder.decode(chunks[1])).split("\"")[3];
+    User user = userRepository.findByUsername(username);
+    playlist.setUser(user);
     return playlistRepository.save(playlist);
   }
 
