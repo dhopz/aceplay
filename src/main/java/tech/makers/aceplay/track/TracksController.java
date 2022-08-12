@@ -3,8 +3,7 @@ package tech.makers.aceplay.track;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import tech.makers.aceplay.user.User;
-import tech.makers.aceplay.user.UserRepository;
+import tech.makers.aceplay.session.SessionService;
 
 import java.util.Base64;
 
@@ -15,24 +14,17 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class TracksController {
   @Autowired private TrackRepository trackRepository;
 
-  @Autowired private UserRepository userRepository;
+  @Autowired
+  private SessionService sessionService;
 
   @GetMapping("/api/tracks")
   public Iterable<Track> index(@RequestHeader("authorization") String token) {
-    String[] chunks = token.split("\\.");
-    Base64.Decoder decoder = Base64.getUrlDecoder();
-    String username = new String(decoder.decode(chunks[1])).split("\"")[3];
-    User user = userRepository.findByUsername(username);
-    return trackRepository.findByUser(user);
+    return trackRepository.findByUser(sessionService.findUser(token));
   }
 
   @PostMapping("/api/tracks")
   public Track create(@RequestBody Track track, @RequestHeader("authorization") String token) {
-    String[] chunks = token.split("\\.");
-    Base64.Decoder decoder = Base64.getUrlDecoder();
-    String username = new String(decoder.decode(chunks[1])).split("\"")[3];
-    User user = userRepository.findByUsername(username);
-    track.setUser(user);
+    track.setUser(sessionService.findUser(token));
     return trackRepository.save(track);
   }
 
