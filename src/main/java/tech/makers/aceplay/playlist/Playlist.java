@@ -34,6 +34,15 @@ public class Playlist {
     this.tracks = tracks;
   }
 
+  public String checkIfNameIsEmpty(String name) {
+    if (name == null || name.isEmpty() || name.trim().isEmpty()) {
+      System.out.println("String is null, empty or blank.");
+      return "Newbie Playlist";
+    } else {
+      return name;
+    }
+  }
+
   public String getName() {
     return name;
   }

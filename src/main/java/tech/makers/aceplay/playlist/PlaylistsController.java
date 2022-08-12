@@ -22,6 +22,7 @@ public class PlaylistsController {
   private SessionService sessionService;
 
   @GetMapping("/api/playlists")
+
   public Iterable<Playlist> playlists(@RequestHeader("authorization") String token) {
     return playlistRepository.findByUser(sessionService.findUser(token));
   }
@@ -29,6 +30,8 @@ public class PlaylistsController {
   @PostMapping("/api/playlists")
   public Playlist create(@RequestBody Playlist playlist, @RequestHeader("authorization") String token) {
     playlist.setUser(sessionService.findUser(token));
+    playlist.setName(playlist.checkIfNameIsEmpty(playlist.getName()));
+
     return playlistRepository.save(playlist);
   }
 

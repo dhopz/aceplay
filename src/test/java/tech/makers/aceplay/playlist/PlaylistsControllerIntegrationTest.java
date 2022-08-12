@@ -183,6 +183,23 @@ class PlaylistsControllerIntegrationTest {
   }
 
   @Test
+  @WithMockUser
+  void WhenLoggedIn_PlaylistPostCreatesNewPlaylistDefaultPlaylistName() throws Exception {
+    mvc.perform(
+                    MockMvcRequestBuilders.post("/api/playlists")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"name\": \"\"}"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.name").value("Newbie Playlist"))
+            .andExpect(jsonPath("$.tracks").value(IsEmptyCollection.empty()));
+
+    Playlist playlist = repository.findFirstByOrderByIdAsc();
+    assertEquals("Newbie Playlist", playlist.getName());
+    assertEquals(Set.of(), playlist.getTracks());
+  }
+
+  @Test
   void WhenLoggedOut_PlaylistAddTrackIsForbidden() throws Exception {
     Track track = trackRepository.save(new Track("Title", "Artist", "https://example.org/"));
     Playlist playlist = repository.save(new Playlist("My Playlist"));
