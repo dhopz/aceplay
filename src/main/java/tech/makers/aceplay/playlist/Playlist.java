@@ -17,6 +17,7 @@ public class Playlist {
   private String name;
 
   @OneToMany(fetch = FetchType.EAGER)
+  @OrderBy("id ASC")
   private Set<Track> tracks;
 
   public Playlist() {}
@@ -75,8 +76,22 @@ public class Playlist {
       return Set.of();
     }
 
-    TreeSet<Track> allTracks = new TreeSet<>(new trackIdComparator());
 
+//    Set<Track> allTracks = new TreeSet<>(new trackIdComparator());
+//
+//    allTracks.addAll(tracks);
+//
+//    for (Track track: allTracks){
+//      System.out.println(track.getId());
+//      System.out.println("this is what I came for");
+//    }
+//
+//    return orderedTracks();
+    return tracks;
+  }
+
+  public Set<Track> orderedTracks(){
+    Set<Track> allTracks = new TreeSet<>(new trackIdComparator());
     allTracks.addAll(tracks);
 
     for (Track track: allTracks){
