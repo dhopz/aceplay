@@ -1,5 +1,6 @@
 package tech.makers.aceplay.playlist;
 
+import com.jayway.jsonpath.JsonPath;
 import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,12 +8,17 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import tech.makers.aceplay.track.Track;
 import tech.makers.aceplay.track.TrackRepository;
+import tech.makers.aceplay.user.User;
+import tech.makers.aceplay.user.UserRepository;
 
 import java.util.Set;
 
@@ -33,6 +39,11 @@ class PlaylistsControllerIntegrationTest {
 
   @Autowired private PlaylistRepository repository;
 
+  @Autowired private UserRepository userRepository;
+
+  private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
+
+
   @Test
   void WhenLoggedOut_PlaylistsIndexReturnsForbidden() throws Exception {
     mvc.perform(MockMvcRequestBuilders.get("/api/playlists").contentType(MediaType.APPLICATION_JSON))
@@ -40,31 +51,66 @@ class PlaylistsControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser
   void WhenLoggedIn_AndThereAreNoPlaylists_PlaylistsIndexReturnsNoTracks() throws Exception {
-    mvc.perform(MockMvcRequestBuilders.get("/api/playlists").contentType(MediaType.APPLICATION_JSON))
+    User kay = new User("kay", passwordEncoder.encode("pass"));
+    userRepository.save(kay);
+    MvcResult result =
+            mvc.perform(
+                            MockMvcRequestBuilders.post("/api/session")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content("{\"username\": \"kay\", \"password\": \"pass\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.user.username").value("kay"))
+                    .andReturn();
+
+    String response = result.getResponse().getContentAsString();
+    String token = JsonPath.parse(response).read("$.token");
+
+    mvc.perform(MockMvcRequestBuilders.get("/api/playlists")
+                    .header("Authorization", token)
+                    .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$", hasSize(0)));
   }
 
   @Test
-  @WithMockUser
   void WhenLoggedIn_AndThereArePlaylists_PlaylistIndexReturnsTracks() throws Exception {
-    Track track = trackRepository.save(new Track("Title", "Artist", "https://example.org/"));
-    repository.save(new Playlist("My Playlist", Set.of(track)));
-    // is next line supposed to be a playlist for a different user?
-    repository.save(new Playlist("Their Playlist"));
+    User kay = new User("kay", passwordEncoder.encode("pass"));
+    userRepository.save(kay);
+    Track track = new Track("Title", "Artist", "https://example.org/");
+    track.setUser(kay);
+    trackRepository.save(track);
+    Playlist p1 = new Playlist("My Playlist", Set.of(track));
+    Playlist p2 = new Playlist("Their Playlist");
+    p1.setUser(kay);
+    p2.setUser(kay);
+    repository.save(p1);
+    repository.save(p2);
+    MvcResult result =
+            mvc.perform(
+                            MockMvcRequestBuilders.post("/api/session")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content("{\"username\": \"kay\", \"password\": \"pass\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.user.username").value("kay"))
+                    .andReturn();
 
-    mvc.perform(MockMvcRequestBuilders.get("/api/playlists").contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-        .andExpect(jsonPath("$", hasSize(2)))
-        .andExpect(jsonPath("$[0].name").value("My Playlist"))
-        .andExpect(jsonPath("$[0].tracks[0].title").value("Title"))
-        .andExpect(jsonPath("$[0].tracks[0].artist").value("Artist"))
-        .andExpect(jsonPath("$[0].tracks[0].publicUrl").value("https://example.org/"))
-        .andExpect(jsonPath("$[1].name").value("Their Playlist"));
+    String response = result.getResponse().getContentAsString();
+    String token = JsonPath.parse(response).read("$.token");
+
+    mvc.perform(
+            MockMvcRequestBuilders.get("/api/playlists").header("Authorization", token))
+         .andExpect(status().isOk())
+         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+         .andExpect(jsonPath("$", hasSize(2)))
+         .andExpect(jsonPath("$[0].name").value("My Playlist"))
+         .andExpect(jsonPath("$[0].tracks[0].title").value("Title"))
+         .andExpect(jsonPath("$[0].tracks[0].artist").value("Artist"))
+         .andExpect(jsonPath("$[0].tracks[0].publicUrl").value("https://example.org/"))
+         .andExpect(jsonPath("$[1].name").value("Their Playlist"));
   }
 
   @Test
@@ -107,10 +153,23 @@ class PlaylistsControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser
   void WhenLoggedIn_PlaylistPostCreatesNewPlaylist() throws Exception {
+    User kay = new User("kay", passwordEncoder.encode("pass"));
+    userRepository.save(kay);
+    MvcResult result =
+            mvc.perform(
+                            MockMvcRequestBuilders.post("/api/session")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content("{\"username\": \"kay\", \"password\": \"pass\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.user.username").value("kay"))
+                    .andReturn();
+
+    String response = result.getResponse().getContentAsString();
+    String token = JsonPath.parse(response).read("$.token");
     mvc.perform(
-            MockMvcRequestBuilders.post("/api/playlists")
+            MockMvcRequestBuilders.post("/api/playlists").header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\": \"My Playlist Name\"}"))
         .andExpect(status().isOk())
