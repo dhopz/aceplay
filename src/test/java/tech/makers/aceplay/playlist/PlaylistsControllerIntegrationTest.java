@@ -122,6 +122,7 @@ class PlaylistsControllerIntegrationTest {
     assertEquals(Set.of(), playlist.getTracks());
   }
 
+
   @Test
   @WithMockUser
   void WhenLoggedIn_PlaylistPostCreatesNewPlaylistDefaultPlaylistName() throws Exception {

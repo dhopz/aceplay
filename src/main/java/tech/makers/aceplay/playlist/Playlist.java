@@ -2,10 +2,10 @@ package tech.makers.aceplay.playlist;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import tech.makers.aceplay.track.Track;
+import tech.makers.aceplay.trackIdComparator;
 
 import javax.persistence.*;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 // https://www.youtube.com/watch?v=vreyOZxdb5Y&t=448s
 @Entity
@@ -16,7 +16,7 @@ public class Playlist {
 
   private String name;
 
-  @ManyToMany(fetch = FetchType.EAGER)
+  @OneToMany(fetch = FetchType.EAGER)
   private Set<Track> tracks;
 
   public Playlist() {}
@@ -60,12 +60,31 @@ public class Playlist {
     return id;
   }
 
+//  @JsonGetter("tracks")
+//  public Set<Track> getTracks() {
+//    if (null == tracks) {
+//      return Set.of();
+//    }
+//    return tracks;
+//  }
+
+
   @JsonGetter("tracks")
   public Set<Track> getTracks() {
     if (null == tracks) {
       return Set.of();
     }
-    return tracks;
+
+    TreeSet<Track> allTracks = new TreeSet<>(new trackIdComparator());
+
+    allTracks.addAll(tracks);
+
+    for (Track track: allTracks){
+      System.out.println(track.getId());
+      System.out.println("this is what I came for");
+    }
+
+    return allTracks;
   }
 
   @Override
