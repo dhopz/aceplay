@@ -10,8 +10,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import tech.makers.aceplay.user.User;
 import tech.makers.aceplay.user.UserRepository;
 
+import java.util.Base64;
 import java.util.List;
 
 // https://www.youtube.com/watch?v=5r3QU09v7ig&t=1799s
@@ -46,5 +48,12 @@ public class SessionService {
             .compact();
 
     return TOKEN_PREFIX + token;
+  }
+
+  public User findUser(String token) {
+    String[] chunks = token.split("\\.");
+    Base64.Decoder decoder = Base64.getUrlDecoder();
+    String username = new String(decoder.decode(chunks[1])).split("\"")[3];
+    return userRepository.findByUsername(username);
   }
 }
