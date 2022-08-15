@@ -5,7 +5,7 @@ import java.net.URL;
 public class TrackRequestModel {
     private String artist;
     private String title;
-    private URL publicURL;
+    private URL publicUrl;
 
     public String getArtist() {
         return artist;
@@ -23,11 +23,11 @@ public class TrackRequestModel {
         this.title = title;
     }
 
-    public URL getPublicURL() {
-        return publicURL;
+    public URL getPublicUrl() {
+        return publicUrl;
     }
 
     public void setPublicURL(URL publicURL) {
-        this.publicURL = publicURL;
+        this.publicUrl = publicURL;
     }
 }

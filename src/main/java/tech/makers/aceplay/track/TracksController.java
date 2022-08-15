@@ -24,7 +24,7 @@ public class TracksController {
 
   @PostMapping("/api/tracks")
   public Track create(@RequestBody TrackRequestModel trackRequestModel, @RequestHeader("authorization") String token) {
-    Track track = new Track(trackRequestModel.getTitle(),trackRequestModel.getArtist(),trackRequestModel.getPublicURL());
+    Track track = new Track(trackRequestModel.getTitle(),trackRequestModel.getArtist(),trackRequestModel.getPublicUrl());
     track.setUser(sessionService.findUser(token));
     return trackRepository.save(track);
   }

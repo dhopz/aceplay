@@ -23,4 +23,6 @@ public class PlaylistRequestModel {
     public void setTracks(Set<Track> tracks) {
         this.tracks = tracks;
     }
+
+
 }
