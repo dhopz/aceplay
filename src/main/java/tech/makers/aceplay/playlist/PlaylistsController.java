@@ -7,13 +7,12 @@ import tech.makers.aceplay.session.SessionService;
 import tech.makers.aceplay.track.Track;
 import tech.makers.aceplay.track.TrackRepository;
 
-import java.util.Base64;
-
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 // https://www.youtube.com/watch?v=vreyOZxdb5Y&t=0s
 @RestController
 public class PlaylistsController {
+  public static final String NOPLAYLIST = "No playlist exists with id ";
   @Autowired private PlaylistRepository playlistRepository;
 
   @Autowired private TrackRepository trackRepository;
@@ -28,7 +27,8 @@ public class PlaylistsController {
   }
 
   @PostMapping("/api/playlists")
-  public Playlist create(@RequestBody Playlist playlist, @RequestHeader("authorization") String token) {
+  public Playlist create(@RequestBody PlaylistRequestModel playlistRequestModel, @RequestHeader("authorization") String token) {
+    Playlist playlist = new Playlist(playlistRequestModel.getName(),playlistRequestModel.getTracks());
     playlist.setUser(sessionService.findUser(token));
     playlist.setName(playlist.checkIfNameIsEmpty(playlist.getName()));
 
@@ -38,13 +38,13 @@ public class PlaylistsController {
   @GetMapping("/api/playlists/{id}")
   public Playlist get(@PathVariable Long id) {
     return playlistRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No playlist exists with id " + id));
+        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, NOPLAYLIST + id));
   }
 
   @PutMapping("/api/playlists/{id}/tracks")
   public Track addTrack(@PathVariable Long id, @RequestBody TrackIdentifierDto trackIdentifierDto) {
     Playlist playlist = playlistRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No playlist exists with id " + id));
+            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, NOPLAYLIST + id));
     Track track = trackRepository.findById(trackIdentifierDto.getId())
             .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No track exists with id " + trackIdentifierDto.getId()));
     playlist.getTracks().add(track);
@@ -56,7 +56,7 @@ public class PlaylistsController {
   public void delete(@PathVariable Long id) {
     Playlist playlist = playlistRepository
             .findById(id)
-            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No playlist exists with id " + id));
+            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, NOPLAYLIST + id));
     playlistRepository.delete(playlist);
   }
 }

@@ -23,18 +23,19 @@ public class TracksController {
   }
 
   @PostMapping("/api/tracks")
-  public Track create(@RequestBody Track track, @RequestHeader("authorization") String token) {
+  public Track create(@RequestBody TrackRequestModel trackRequestModel, @RequestHeader("authorization") String token) {
+    Track track = new Track(trackRequestModel.getTitle(),trackRequestModel.getArtist(),trackRequestModel.getPublicURL());
     track.setUser(sessionService.findUser(token));
     return trackRepository.save(track);
   }
 
   @PatchMapping("/api/tracks/{id}")
-  public Track update(@PathVariable Long id, @RequestBody Track newTrack) {
+  public Track update(@PathVariable Long id, @RequestBody TrackRequestModel trackRequestModel) {
     Track track = trackRepository
             .findById(id)
             .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No track exists with id " + id));
-    track.setTitle(newTrack.getTitle());
-    track.setArtist(newTrack.getArtist());
+    track.setTitle(trackRequestModel.getTitle());
+    track.setArtist(trackRequestModel.getArtist());
     trackRepository.save(track);
     return track;
   }
