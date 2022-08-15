@@ -1,12 +1,10 @@
 package tech.makers.aceplay.track;
 
-import org.springframework.security.core.context.SecurityContextHolder;
 import tech.makers.aceplay.user.User;
 
 import javax.persistence.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.Principal;
 
 // https://www.youtube.com/watch?v=5r3QU09v7ig&t=2999s
 @Entity
@@ -67,10 +65,6 @@ public class Track {
 
   public void setPublicUrl(String publicUrl) throws MalformedURLException {
     this.publicUrl = new URL(publicUrl);
-  }
-
-  public void setPublicUrl(URL publicUrl) {
-    this.publicUrl = publicUrl;
   }
 
   public void setUser(User user) {
