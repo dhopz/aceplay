@@ -68,7 +68,6 @@ public class Playlist {
     return tracks;
   }
 
-
   @Override
   public String toString() {
     return String.format("Playlist[id=%d name='%s']", id, name);
