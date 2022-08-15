@@ -16,6 +16,7 @@ public class Playlist {
   private String name;
 
   @ManyToMany(fetch = FetchType.EAGER)
+  @OrderBy("id ASC")
   private Set<Track> tracks;
 
   public Playlist() {}
