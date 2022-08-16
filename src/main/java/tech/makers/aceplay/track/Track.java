@@ -32,7 +32,6 @@ public class Track {
 
   public String checkTitleIsEmpty(String title) {
     if (title == null || title.isEmpty() || title.trim().isEmpty()) {
-      System.out.println("String is null, empty or blank.");
       return "New Title";
     } else {
       return title;
@@ -41,7 +40,6 @@ public class Track {
 
   public String checkArtistIsEmpty(String artist) {
     if (artist == null || artist.isEmpty() || artist.trim().isEmpty()) {
-      System.out.println("String is null, empty or blank.");
       return "New Artist";
     } else {
       return artist;

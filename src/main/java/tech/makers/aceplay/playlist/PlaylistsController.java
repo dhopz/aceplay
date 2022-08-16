@@ -1,11 +1,16 @@
 package tech.makers.aceplay.playlist;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+//import tech.makers.aceplay.NoSuchElementFoundException;
 import tech.makers.aceplay.session.SessionService;
 import tech.makers.aceplay.track.Track;
 import tech.makers.aceplay.track.TrackRepository;
+
+import javax.validation.Valid;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -28,12 +33,20 @@ public class PlaylistsController {
 
   @PostMapping("/api/playlists")
   public Playlist create(@RequestBody PlaylistRequestModel playlistRequestModel, @RequestHeader("authorization") String token) {
-    Playlist playlist = new Playlist(playlistRequestModel.getName(),playlistRequestModel.getTracks());
-    playlist.setUser(sessionService.findUser(token));
-    playlist.setName(playlist.checkIfNameIsEmpty(playlist.getName()));
+    if(playlistRequestModel.getName() == null || playlistRequestModel.getName().isEmpty() || playlistRequestModel.getName().trim().isEmpty()){
+      System.out.println("Getting here right?");
+      throw new EmptyPlaylistException();
 
-    return playlistRepository.save(playlist);
+    } else {
+      Playlist playlist = new Playlist(playlistRequestModel.getName(), playlistRequestModel.getTracks());
+      playlist.setUser(sessionService.findUser(token));
+      return playlistRepository.save(playlist);
+    }
   }
+  @ResponseStatus(value=HttpStatus.BAD_REQUEST, reason="Need a Playlist Name \n")
+  public static class EmptyPlaylistException extends RuntimeException{
+    }
+
 
   @GetMapping("/api/playlists/{id}")
   public Playlist get(@PathVariable Long id) {

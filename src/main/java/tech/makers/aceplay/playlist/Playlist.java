@@ -6,6 +6,8 @@ import tech.makers.aceplay.trackIdComparator;
 import tech.makers.aceplay.user.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.*;
 
 // https://www.youtube.com/watch?v=vreyOZxdb5Y&t=448s
@@ -14,12 +16,10 @@ public class Playlist {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
-
+  
   private String name;
 
 
-  @OneToMany(fetch = FetchType.EAGER)
-  @OrderBy("id ASC")
   @ManyToMany(fetch = FetchType.EAGER)
   @OrderBy("id ASC")
   private Set<Track> tracks;
@@ -40,7 +40,7 @@ public class Playlist {
 
   public String checkIfNameIsEmpty(String name) {
     if (name == null || name.isEmpty() || name.trim().isEmpty()) {
-      return randomPlaylistNameGenerator();
+      throw new RuntimeException("Playlist must have a name");
     } else {
       return name;
     }
@@ -82,11 +82,6 @@ public class Playlist {
   public Set<Track> orderedTracks(){
     Set<Track> allTracks = new TreeSet<>(new trackIdComparator());
     allTracks.addAll(tracks);
-
-    for (Track track: allTracks){
-      System.out.println(track.getId());
-      System.out.println("this is what I came for");
-    }
 
     return allTracks;
   }
