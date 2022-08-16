@@ -21,7 +21,6 @@ public class PlaylistsController {
   private SessionService sessionService;
 
   @GetMapping("/api/playlists")
-
   public Iterable<Playlist> playlists() {
     return playlistRepository.findByUser(sessionService.findUser());
   }
