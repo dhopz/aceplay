@@ -182,6 +182,7 @@ class PlaylistsControllerIntegrationTest {
     assertEquals(Set.of(), playlist.getTracks());
   }
 
+
   @Test
   void WhenLoggedIn_PlaylistPostCreatesNewPlaylistDefaultPlaylistName() throws Exception {
     User kay = new User("kay", passwordEncoder.encode("pass"));

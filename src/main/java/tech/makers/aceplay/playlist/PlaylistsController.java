@@ -48,6 +48,7 @@ public class PlaylistsController {
     Track track = trackRepository.findById(trackIdentifierDto.getId())
             .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No track exists with id " + trackIdentifierDto.getId()));
     playlist.getTracks().add(track);
+//    playlist.orderedTracks(track);
     playlistRepository.save(playlist);
     return track;
   }
