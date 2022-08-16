@@ -1,8 +1,11 @@
 package tech.makers.aceplay.user;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import tech.makers.aceplay.playlist.Playlist;
+import tech.makers.aceplay.track.Track;
 
 import javax.persistence.*;
 import java.util.Collection;

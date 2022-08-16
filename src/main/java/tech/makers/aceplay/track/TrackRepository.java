@@ -2,6 +2,8 @@ package tech.makers.aceplay.track;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import tech.makers.aceplay.playlist.Playlist;
+import tech.makers.aceplay.user.User;
 
 import java.util.List;
 
@@ -9,14 +11,6 @@ import java.util.List;
 public interface TrackRepository extends CrudRepository<Track, Long> {
   Track findFirstByOrderByIdAsc();
 
-//  Track findByIdOrderByIdDesc();
+  Iterable<Track> findByUser(User user);
 
-//  List<Track> findByIdOrderByIdAsc(Long id);
-
-//  Track findAllByOrderByDesc();
-
-//  List<Track> findAllByOrderByIdAsc();
-
-//  @Query(value = "SELECT * FROM playlist WHERE cool = false",nativeQuery = true)
-//  List<Track> findAllByDesc();
 }

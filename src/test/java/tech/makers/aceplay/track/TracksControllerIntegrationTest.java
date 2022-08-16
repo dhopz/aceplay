@@ -1,5 +1,6 @@
 package tech.makers.aceplay.track;
 
+import com.jayway.jsonpath.JsonPath;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,13 +8,18 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import tech.makers.aceplay.track.Track;
 import tech.makers.aceplay.track.TrackRepository;
+import tech.makers.aceplay.user.User;
+import tech.makers.aceplay.user.UserRepository;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,22 +35,60 @@ class TracksControllerIntegrationTest {
 
   @Autowired private TrackRepository repository;
 
+  @Autowired private UserRepository userRepository;
+
+  private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
+
   @Test
-  @WithMockUser
   void WhenLoggedIn_AndThereAreNoTracks_TracksIndexReturnsNoTracks() throws Exception {
-    mvc.perform(MockMvcRequestBuilders.get("/api/tracks").contentType(MediaType.APPLICATION_JSON))
+    User kay = new User("kay", passwordEncoder.encode("pass"));
+    userRepository.save(kay);
+    MvcResult result =
+            mvc.perform(
+                            MockMvcRequestBuilders.post("/api/session")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content("{\"username\": \"kay\", \"password\": \"pass\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.user.username").value("kay"))
+                    .andReturn();
+
+    String response = result.getResponse().getContentAsString();
+    String token = JsonPath.parse(response).read("$.token");
+
+    mvc.perform(MockMvcRequestBuilders.get("/api/tracks")
+                    .header("Authorization", token)
+                    .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$", hasSize(0)));
   }
 
   @Test
-  @WithMockUser
   void WhenLoggedIn_AndThereAreTracks_TracksIndexReturnsTracks() throws Exception {
-    repository.save(new Track("Blue Line Swinger", "Yo La Tengo", "http://example.org/track.mp3"));
-    repository.save(new Track("Morning Light", "Girls", "http://example.org/track.mp3"));
+    User kay = userRepository.save( new User("kay", passwordEncoder.encode("pass")));
+    Track blue = new Track("Blue Line Swinger", "Yo La Tengo", "http://example.org/track.mp3");
+    Track morning = new Track("Morning Light", "Girls", "http://example.org/track.mp3");
+    blue.setUser(kay);
+    morning.setUser(kay);
+    repository.save(blue);
+    repository.save(morning);
+    MvcResult result =
+            mvc.perform(
+                            MockMvcRequestBuilders.post("/api/session")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content("{\"username\": \"kay\", \"password\": \"pass\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.user.username").value("kay"))
+                    .andReturn();
 
-    mvc.perform(MockMvcRequestBuilders.get("/api/tracks").contentType(MediaType.APPLICATION_JSON))
+    String response = result.getResponse().getContentAsString();
+    String token = JsonPath.parse(response).read("$.token");
+
+    mvc.perform(MockMvcRequestBuilders.get("/api/tracks")
+                    .header("Authorization", token)
+                    .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$", hasSize(2)))
@@ -61,10 +105,23 @@ class TracksControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser
   void WhenLoggedIn_TracksPostCreatesNewTrack() throws Exception {
+    User kay = new User("kay", passwordEncoder.encode("pass"));
+    userRepository.save(kay);
+    MvcResult result =
+            mvc.perform(
+                            MockMvcRequestBuilders.post("/api/session")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content("{\"username\": \"kay\", \"password\": \"pass\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.user.username").value("kay"))
+                    .andReturn();
+
+    String response = result.getResponse().getContentAsString();
+    String token = JsonPath.parse(response).read("$.token");
     mvc.perform(
-            MockMvcRequestBuilders.post("/api/tracks")
+                    MockMvcRequestBuilders.post("/api/tracks").header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"title\": \"Blue Line Swinger\", \"artist\": \"Yo La Tengo\", \"publicUrl\": \"https://example.org/track.mp3\"}"))
         .andExpect(status().isOk())

@@ -3,6 +3,9 @@ package tech.makers.aceplay.track;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import tech.makers.aceplay.session.SessionService;
+
+import java.util.Base64;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -11,13 +14,17 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class TracksController {
   @Autowired private TrackRepository trackRepository;
 
+  @Autowired
+  private SessionService sessionService;
+
   @GetMapping("/api/tracks")
-  public Iterable<Track> index() {
-    return trackRepository.findAll();
+  public Iterable<Track> index(@RequestHeader("authorization") String token) {
+    return trackRepository.findByUser(sessionService.findUser(token));
   }
 
   @PostMapping("/api/tracks")
-  public Track create(@RequestBody Track track) {
+  public Track create(@RequestBody Track track, @RequestHeader("authorization") String token) {
+    track.setUser(sessionService.findUser(token));
     track.setArtist(track.checkArtistIsEmpty(track.getArtist()));
     track.setTitle(track.checkTitleIsEmpty(track.getTitle()));
     return trackRepository.save(track);
