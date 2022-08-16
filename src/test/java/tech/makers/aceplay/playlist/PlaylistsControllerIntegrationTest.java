@@ -279,4 +279,52 @@ class PlaylistsControllerIntegrationTest {
 
     assertEquals(1, repository.count());
   }
+
+  @Test
+  @WithMockUser
+  void WhenLoggedIn_DeleteTrackFromPlaylist() throws Exception {
+    Playlist playlist = repository.save(new Playlist("My Playlist"));
+    Track track = trackRepository.save(new Track("Title", "Artist", "https://example.org/"));
+
+    mvc.perform(
+                    MockMvcRequestBuilders.put("/api/playlists/" + playlist.getId() + "/tracks")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"id\": \"" + track.getId() + "\"}"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.title").value("Title"));
+
+    mvc.perform(
+            MockMvcRequestBuilders.delete("/api/playlists/" + playlist.getId() + "/tracks/" + track.getId()))
+
+            .andExpect(status().isOk());
+
+    Playlist updatedPlaylist = repository.findById(playlist.getId()).orElseThrow();
+
+
+    assertEquals(0, updatedPlaylist.getTracks().size());
+  }
+
+  @Test
+  @WithMockUser
+  void WhenLoggedIn_ButNoTracksInPlaylist_DeleteTrackOnPlaylistThrows404() throws Exception {
+    Playlist playlist = repository.save(new Playlist("My Playlist"));
+    mvc.perform(
+            MockMvcRequestBuilders.delete("/api/playlists/" + playlist.getId() + "/tracks/1"))
+            .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void WhenLoggedOut_DeleteTrackFromPlaylistIsForbidden() throws Exception {
+    Track track = trackRepository.save(new Track("Title", "Artist", "https://example.org/"));
+    Playlist playlist = repository.save(new Playlist("My Playlist", Set.of(track)));
+
+    mvc.perform(
+            MockMvcRequestBuilders.delete("/api/playlists/" + playlist.getId() + "/tracks/" + track.getId()))
+            .andExpect(status().isForbidden());
+
+    Playlist updatedPlaylist = repository.findById(playlist.getId()).orElseThrow();
+
+    assertEquals(1, updatedPlaylist.getTracks().size());
+  }
 }
