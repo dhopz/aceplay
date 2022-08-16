@@ -5,8 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import tech.makers.aceplay.session.SessionService;
 
-import java.util.Base64;
-
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 // https://www.youtube.com/watch?v=5r3QU09v7ig&t=2410s
@@ -14,18 +12,19 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class TracksController {
   @Autowired private TrackRepository trackRepository;
 
+
   @Autowired
   private SessionService sessionService;
 
   @GetMapping("/api/tracks")
-  public Iterable<Track> index(@RequestHeader("authorization") String token) {
-    return trackRepository.findByUser(sessionService.findUser(token));
+  public Iterable<Track> index() {
+    return trackRepository.findByUser(sessionService.findUser());
   }
 
   @PostMapping("/api/tracks")
-  public Track create(@RequestBody TrackRequestModel trackRequestModel, @RequestHeader("authorization") String token) {
+  public Track create(@RequestBody TrackRequestModel trackRequestModel) {
     Track track = new Track(trackRequestModel.getTitle(),trackRequestModel.getArtist(),trackRequestModel.getPublicUrl());
-    track.setUser(sessionService.findUser(token));
+    track.setUser(sessionService.findUser());
     track.setArtist(track.checkArtistIsEmpty(track.getArtist()));
     track.setTitle(track.checkTitleIsEmpty(track.getTitle()));
     return trackRepository.save(track);

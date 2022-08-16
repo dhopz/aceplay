@@ -8,6 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tech.makers.aceplay.user.User;
@@ -50,10 +51,8 @@ public class SessionService {
     return TOKEN_PREFIX + token;
   }
 
-  public User findUser(String token) {
-    String[] chunks = token.split("\\.");
-    Base64.Decoder decoder = Base64.getUrlDecoder();
-    String username = new String(decoder.decode(chunks[1])).split("\"")[3];
+  public User findUser() {
+    String username = SecurityContextHolder.getContext().getAuthentication().getName();
     return userRepository.findByUsername(username);
   }
 }
