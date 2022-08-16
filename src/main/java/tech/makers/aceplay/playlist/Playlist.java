@@ -21,6 +21,7 @@ public class Playlist {
   @OneToMany(fetch = FetchType.EAGER)
   @OrderBy("id ASC")
   @ManyToMany(fetch = FetchType.EAGER)
+  @OrderBy("id ASC")
   private Set<Track> tracks;
 
   @ManyToOne(fetch = FetchType.EAGER)
@@ -39,8 +40,6 @@ public class Playlist {
 
   public String checkIfNameIsEmpty(String name) {
     if (name == null || name.isEmpty() || name.trim().isEmpty()) {
-      System.out.println("String is null, empty or blank.");
-//      return "Newbie Playlist";
       return randomPlaylistNameGenerator();
     } else {
       return name;
