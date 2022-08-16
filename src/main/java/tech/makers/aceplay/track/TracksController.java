@@ -26,6 +26,8 @@ public class TracksController {
   public Track create(@RequestBody TrackRequestModel trackRequestModel, @RequestHeader("authorization") String token) {
     Track track = new Track(trackRequestModel.getTitle(),trackRequestModel.getArtist(),trackRequestModel.getPublicUrl());
     track.setUser(sessionService.findUser(token));
+    track.setArtist(track.checkArtistIsEmpty(track.getArtist()));
+    track.setTitle(track.checkTitleIsEmpty(track.getTitle()));
     return trackRepository.save(track);
   }
 
