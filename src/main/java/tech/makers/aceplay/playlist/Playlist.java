@@ -18,8 +18,6 @@ public class Playlist {
   private String name;
 
 
-  @OneToMany(fetch = FetchType.EAGER)
-  @OrderBy("id ASC")
   @ManyToMany(fetch = FetchType.EAGER)
   @OrderBy("id ASC")
   private Set<Track> tracks;
