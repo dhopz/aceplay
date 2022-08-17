@@ -34,9 +34,7 @@ public class PlaylistsController {
   @PostMapping("/api/playlists")
   public Playlist create(@RequestBody PlaylistRequestModel playlistRequestModel, @RequestHeader("authorization") String token) {
     if(playlistRequestModel.getName() == null || playlistRequestModel.getName().isEmpty() || playlistRequestModel.getName().trim().isEmpty()){
-      System.out.println("Getting here right?");
       throw new EmptyPlaylistException("User hasn't provided Playlist Name parameter");
-
     } else {
       Playlist playlist = new Playlist(playlistRequestModel.getName(), playlistRequestModel.getTracks());
       playlist.setUser(sessionService.findUser(token));
