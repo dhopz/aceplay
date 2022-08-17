@@ -23,9 +23,8 @@ public class PlaylistsController {
   private SessionService sessionService;
 
   @GetMapping("/api/playlists")
-
-  public Iterable<Playlist> playlists(@RequestHeader("authorization") String token) {
-    return playlistRepository.findByUser(sessionService.findUser(token));
+  public Iterable<Playlist> playlists() {
+    return playlistRepository.findByUser(sessionService.findUser());
   }
 
   @PostMapping("/api/playlists")

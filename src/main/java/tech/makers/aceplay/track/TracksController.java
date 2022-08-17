@@ -14,12 +14,13 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class TracksController {
   @Autowired private TrackRepository trackRepository;
 
+
   @Autowired
   private SessionService sessionService;
 
   @GetMapping("/api/tracks")
-  public Iterable<Track> index(@RequestHeader("authorization") String token) {
-    return trackRepository.findByUser(sessionService.findUser(token));
+  public Iterable<Track> index() {
+    return trackRepository.findByUser(sessionService.findUser());
   }
 
   @PostMapping("/api/tracks")
