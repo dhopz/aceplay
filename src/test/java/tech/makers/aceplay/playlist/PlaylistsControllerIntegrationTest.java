@@ -20,6 +20,7 @@ import tech.makers.aceplay.track.TrackRepository;
 import tech.makers.aceplay.user.User;
 import tech.makers.aceplay.user.UserRepository;
 
+import java.util.Objects;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -187,7 +188,7 @@ class PlaylistsControllerIntegrationTest {
   void WhenLoggedIn_PlaylistPostCreatesNewPlaylistDefaultPlaylistName() throws Exception {
     User kay = new User("kay", passwordEncoder.encode("pass"));
     userRepository.save(kay);
-    MvcResult result =
+    MvcResult res =
             mvc.perform(
                             MockMvcRequestBuilders.post("/api/session")
                                     .contentType(MediaType.APPLICATION_JSON)
@@ -197,20 +198,14 @@ class PlaylistsControllerIntegrationTest {
                     .andExpect(jsonPath("$.user.username").value("kay"))
                     .andReturn();
 
-    String response = result.getResponse().getContentAsString();
+    String response = res.getResponse().getContentAsString();
     String token = JsonPath.parse(response).read("$.token");
     mvc.perform(
                     MockMvcRequestBuilders.post("/api/playlists").header("Authorization", token)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"name\": \"\"}"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.name").value("Newbie Playlist"))
-            .andExpect(jsonPath("$.tracks").value(IsEmptyCollection.empty()));
-
-    Playlist playlist = repository.findFirstByOrderByIdAsc();
-    assertEquals("Newbie Playlist", playlist.getName());
-    assertEquals(Set.of(), playlist.getTracks());
+            .andExpect(status().isBadRequest())
+            .andExpect(result -> assertEquals("User hasn't provided Playlist Name parameter", Objects.requireNonNull(result.getResolvedException()).getMessage()));
   }
 
   @Test
