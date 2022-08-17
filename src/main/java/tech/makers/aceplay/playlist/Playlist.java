@@ -18,8 +18,6 @@ public class Playlist {
   private String name;
 
 
-  @OneToMany(fetch = FetchType.EAGER)
-  @OrderBy("id ASC")
   @ManyToMany(fetch = FetchType.EAGER)
   @OrderBy("id ASC")
   private Set<Track> tracks;
@@ -30,11 +28,23 @@ public class Playlist {
   public Playlist() {}
 
   public Playlist(String name) {
-    this(name, null);
+    this.name = name;
+    this.tracks = null;
   }
-
   public Playlist(String name, Set<Track> tracks) {
     this.name = name;
+    this.tracks = tracks;
+  }
+
+  public Playlist(String name, User user) {
+    this.name = name;
+    this.user = user;
+    this.tracks = null;
+  }
+
+  public Playlist(String name, Set<Track> tracks, User user) {
+    this.name = name;
+    this.user = user;
     this.tracks = tracks;
   }
 

@@ -21,15 +21,14 @@ public class PlaylistsController {
   private SessionService sessionService;
 
   @GetMapping("/api/playlists")
-
-  public Iterable<Playlist> playlists(@RequestHeader("authorization") String token) {
-    return playlistRepository.findByUser(sessionService.findUser(token));
+  public Iterable<Playlist> playlists() {
+    return playlistRepository.findByUser(sessionService.findUser());
   }
 
   @PostMapping("/api/playlists")
-  public Playlist create(@RequestBody PlaylistRequestModel playlistRequestModel, @RequestHeader("authorization") String token) {
+  public Playlist create(@RequestBody PlaylistRequestModel playlistRequestModel) {
     Playlist playlist = new Playlist(playlistRequestModel.getName(),playlistRequestModel.getTracks());
-    playlist.setUser(sessionService.findUser(token));
+    playlist.setUser(sessionService.findUser());
     playlist.setName(playlist.checkIfNameIsEmpty(playlist.getName()));
 
     return playlistRepository.save(playlist);
@@ -48,7 +47,6 @@ public class PlaylistsController {
     Track track = trackRepository.findById(trackIdentifierDto.getId())
             .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No track exists with id " + trackIdentifierDto.getId()));
     playlist.getTracks().add(track);
-//    playlist.orderedTracks(track);
     playlistRepository.save(playlist);
     return track;
   }
