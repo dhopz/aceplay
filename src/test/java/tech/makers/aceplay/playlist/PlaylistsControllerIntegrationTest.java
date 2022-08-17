@@ -20,6 +20,8 @@ import tech.makers.aceplay.track.TrackRepository;
 import tech.makers.aceplay.user.User;
 import tech.makers.aceplay.user.UserRepository;
 
+
+import java.util.Objects;
 import java.net.URL;
 import java.util.Set;
 
@@ -145,14 +147,8 @@ class PlaylistsControllerIntegrationTest {
                     MockMvcRequestBuilders.post("/api/playlists")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"name\": \"\"}"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.name").value("Newbie Playlist"))
-            .andExpect(jsonPath("$.tracks").value(IsEmptyCollection.empty()));
-
-    Playlist playlist = repository.findFirstByOrderByIdAsc();
-    assertEquals("Newbie Playlist", playlist.getName());
-    assertEquals(Set.of(), playlist.getTracks());
+            .andExpect(status().isBadRequest())
+            .andExpect(result -> assertEquals("Empty Playlist Name", Objects.requireNonNull(result.getResolvedException()).getMessage()));
   }
 
   @Test

@@ -21,6 +21,7 @@ import tech.makers.aceplay.track.TrackRepository;
 import tech.makers.aceplay.user.User;
 import tech.makers.aceplay.user.UserRepository;
 
+import java.util.Objects;
 import java.net.URL;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -94,39 +95,51 @@ class TracksControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser
-  void WhenLoggedIn_TracksPostCreatesNewTrackNoTitle() throws Exception {
-    mvc.perform(
-                    MockMvcRequestBuilders.post("/api/tracks")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"title\": \"\", \"artist\": \"Yo La Tengo\", \"publicUrl\": \"https://example.org/track.mp3\"}"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.title").value("New Title"))
-            .andExpect(jsonPath("$.artist").value("Yo La Tengo"))
-            .andExpect(jsonPath("$.publicUrl").value("https://example.org/track.mp3"));
+  void WhenLoggedIn_TracksPostCreatesNewTrackNoArtist() throws Exception {
+    User kay = new User("kay", passwordEncoder.encode("pass"));
+    userRepository.save(kay);
+    MvcResult res =
+            mvc.perform(
+                            MockMvcRequestBuilders.post("/api/session")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content("{\"username\": \"kay\", \"password\": \"pass\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.user.username").value("kay"))
+                    .andReturn();
 
-    Track track = repository.findFirstByOrderByIdAsc();
-    assertEquals("New Title", track.getTitle());
-    assertEquals("https://example.org/track.mp3", track.getPublicUrl().toString());
+    String response = res.getResponse().getContentAsString();
+    String token = JsonPath.parse(response).read("$.token");
+    mvc.perform(
+                    MockMvcRequestBuilders.post("/api/tracks").header("Authorization", token)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"title\": \"Blue Line Swinger\", \"artist\": \"\", \"publicUrl\": \"https://example.org/track.mp3\"}"))
+            .andExpect(status().isBadRequest())
+            .andExpect(result -> assertEquals("Empty Artist", Objects.requireNonNull(result.getResolvedException()).getMessage()));
   }
 
   @Test
-  @WithMockUser
-  void WhenLoggedIn_TracksPostCreatesNewTrackNoArtist() throws Exception {
-    mvc.perform(
-                    MockMvcRequestBuilders.post("/api/tracks")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"title\": \"Blue Line Swinger\", \"artist\": \"\", \"publicUrl\": \"https://example.org/track.mp3\"}"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.title").value("Blue Line Swinger"))
-            .andExpect(jsonPath("$.artist").value("New Artist"))
-            .andExpect(jsonPath("$.publicUrl").value("https://example.org/track.mp3"));
+  void WhenLoggedIn_TracksPostCreatesNewTrackNoTitle() throws Exception {
+    User kay = new User("kay", passwordEncoder.encode("pass"));
+    userRepository.save(kay);
+    MvcResult res =
+            mvc.perform(
+                            MockMvcRequestBuilders.post("/api/session")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content("{\"username\": \"kay\", \"password\": \"pass\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.user.username").value("kay"))
+                    .andReturn();
 
-    Track track = repository.findFirstByOrderByIdAsc();
-    assertEquals("Blue Line Swinger", track.getTitle());
-    assertEquals("https://example.org/track.mp3", track.getPublicUrl().toString());
+    String response = res.getResponse().getContentAsString();
+    String token = JsonPath.parse(response).read("$.token");
+    mvc.perform(
+                    MockMvcRequestBuilders.post("/api/tracks").header("Authorization", token)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"title\": \"\", \"artist\": \"New Artist\", \"publicUrl\": \"https://example.org/track.mp3\"}"))
+            .andExpect(status().isBadRequest())
+            .andExpect(result -> assertEquals("Empty Title", Objects.requireNonNull(result.getResolvedException()).getMessage()));
   }
 
   @Test

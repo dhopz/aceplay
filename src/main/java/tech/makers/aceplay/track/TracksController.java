@@ -3,7 +3,9 @@ package tech.makers.aceplay.track;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import tech.makers.aceplay.EmptyFieldException;
 import tech.makers.aceplay.session.SessionService;
+
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -22,12 +24,18 @@ public class TracksController {
   }
 
   @PostMapping("/api/tracks")
-  public Track create(@RequestBody TrackRequestModel trackRequestModel) {
-    Track track = new Track(trackRequestModel.getTitle(),trackRequestModel.getArtist(),trackRequestModel.getPublicUrl());
-    track.setUser(sessionService.findUser());
-    track.setArtist(track.checkArtistIsEmpty(track.getArtist()));
-    track.setTitle(track.checkTitleIsEmpty(track.getTitle()));
-    return trackRepository.save(track);
+  public Track create(@RequestBody TrackRequestModel trackRequestModel, @RequestHeader("authorization") String token) {
+    if (trackRequestModel.getArtist() == null || trackRequestModel.getArtist().isEmpty() || trackRequestModel.getArtist().trim().isEmpty()) {
+      throw new EmptyFieldException("Empty Artist");
+    }else{
+      if (trackRequestModel.getTitle() == null || trackRequestModel.getTitle().isEmpty() || trackRequestModel.getTitle().trim().isEmpty()) {
+        throw new EmptyFieldException("Empty Title");
+      }else {
+        Track track = new Track(trackRequestModel.getTitle(), trackRequestModel.getArtist(), trackRequestModel.getPublicUrl());
+        track.setUser(sessionService.findUser(token));
+        return trackRepository.save(track);
+      }
+    }
   }
 
   @PatchMapping("/api/tracks/{id}")

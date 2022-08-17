@@ -2,7 +2,6 @@ package tech.makers.aceplay.playlist;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import tech.makers.aceplay.track.Track;
-import tech.makers.aceplay.trackIdComparator;
 import tech.makers.aceplay.user.User;
 
 import javax.persistence.*;
@@ -14,7 +13,7 @@ public class Playlist {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
-
+  
   private String name;
 
 
@@ -50,7 +49,7 @@ public class Playlist {
 
   public String checkIfNameIsEmpty(String name) {
     if (name == null || name.isEmpty() || name.trim().isEmpty()) {
-      return randomPlaylistNameGenerator();
+      throw new RuntimeException("Playlist must have a name");
     } else {
       return name;
     }
@@ -87,18 +86,6 @@ public class Playlist {
       return Set.of();
     }
     return tracks;
-  }
-
-  public Set<Track> orderedTracks(){
-    Set<Track> allTracks = new TreeSet<>(new trackIdComparator());
-    allTracks.addAll(tracks);
-
-    for (Track track: allTracks){
-      System.out.println(track.getId());
-      System.out.println("this is what I came for");
-    }
-
-    return allTracks;
   }
 
   @Override
