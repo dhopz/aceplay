@@ -125,8 +125,23 @@ class PlaylistsControllerIntegrationTest {
   @Test
   @WithMockUser
   void WhenLoggedIn_PlaylistPostCreatesNewPlaylist() throws Exception {
+    User kay = new User("kay", passwordEncoder.encode("pass"));
+    userRepository.save(kay);
+    MvcResult res =
+            mvc.perform(
+                            MockMvcRequestBuilders.post("/api/session")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content("{\"username\": \"kay\", \"password\": \"pass\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.user.username").value("kay"))
+                    .andReturn();
+
+    String response = res.getResponse().getContentAsString();
+    String token = JsonPath.parse(response).read("$.token");
     mvc.perform(
                     MockMvcRequestBuilders.post("/api/playlists")
+                            .header("Authorization", token)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"name\": \"My Playlist Name\"}"))
             .andExpect(status().isOk())
@@ -141,10 +156,24 @@ class PlaylistsControllerIntegrationTest {
 
 
   @Test
-  @WithMockUser
   void WhenLoggedIn_PlaylistPostCreatesNewPlaylistDefaultPlaylistName() throws Exception {
+    User kay = new User("kay", passwordEncoder.encode("pass"));
+    userRepository.save(kay);
+    MvcResult res =
+            mvc.perform(
+                            MockMvcRequestBuilders.post("/api/session")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content("{\"username\": \"kay\", \"password\": \"pass\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.user.username").value("kay"))
+                    .andReturn();
+
+    String response = res.getResponse().getContentAsString();
+    String token = JsonPath.parse(response).read("$.token");
     mvc.perform(
                     MockMvcRequestBuilders.post("/api/playlists")
+                            .header("Authorization", token)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"name\": \"\"}"))
             .andExpect(status().isBadRequest())

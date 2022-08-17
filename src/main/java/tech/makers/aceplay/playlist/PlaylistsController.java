@@ -33,7 +33,7 @@ public class PlaylistsController {
       throw new EmptyFieldException("Empty Playlist Name");
     } else {
       Playlist playlist = new Playlist(playlistRequestModel.getName(), playlistRequestModel.getTracks());
-      playlist.setUser(sessionService.findUser(token));
+      playlist.setUser(sessionService.findUser());
       return playlistRepository.save(playlist);
     }
   }

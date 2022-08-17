@@ -32,7 +32,7 @@ public class TracksController {
         throw new EmptyFieldException("Empty Title");
       }else {
         Track track = new Track(trackRequestModel.getTitle(), trackRequestModel.getArtist(), trackRequestModel.getPublicUrl());
-        track.setUser(sessionService.findUser(token));
+        track.setUser(sessionService.findUser());
         return trackRepository.save(track);
       }
     }
