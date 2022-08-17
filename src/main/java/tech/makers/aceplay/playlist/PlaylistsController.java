@@ -35,7 +35,7 @@ public class PlaylistsController {
   public Playlist create(@RequestBody PlaylistRequestModel playlistRequestModel, @RequestHeader("authorization") String token) {
     if(playlistRequestModel.getName() == null || playlistRequestModel.getName().isEmpty() || playlistRequestModel.getName().trim().isEmpty()){
       System.out.println("Getting here right?");
-      throw new EmptyPlaylistException();
+      throw new EmptyPlaylistException("User hasn't provided Playlist Name parameter");
 
     } else {
       Playlist playlist = new Playlist(playlistRequestModel.getName(), playlistRequestModel.getTracks());
@@ -43,9 +43,12 @@ public class PlaylistsController {
       return playlistRepository.save(playlist);
     }
   }
-  @ResponseStatus(value=HttpStatus.BAD_REQUEST, reason="Need a Playlist Name \n")
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
   public static class EmptyPlaylistException extends RuntimeException{
+    public EmptyPlaylistException(String message) {
+      super(message);
     }
+  }
 
 
   @GetMapping("/api/playlists/{id}")
