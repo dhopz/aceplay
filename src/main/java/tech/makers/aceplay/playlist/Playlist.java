@@ -2,12 +2,9 @@ package tech.makers.aceplay.playlist;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import tech.makers.aceplay.track.Track;
-import tech.makers.aceplay.trackIdComparator;
 import tech.makers.aceplay.user.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.util.*;
 
 // https://www.youtube.com/watch?v=vreyOZxdb5Y&t=448s
@@ -77,13 +74,6 @@ public class Playlist {
       return Set.of();
     }
     return tracks;
-  }
-
-  public Set<Track> orderedTracks(){
-    Set<Track> allTracks = new TreeSet<>(new trackIdComparator());
-    allTracks.addAll(tracks);
-
-    return allTracks;
   }
 
   @Override
