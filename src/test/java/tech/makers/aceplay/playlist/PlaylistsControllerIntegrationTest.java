@@ -205,7 +205,7 @@ class PlaylistsControllerIntegrationTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"name\": \"\"}"))
             .andExpect(status().isBadRequest())
-            .andExpect(result -> assertEquals("User hasn't provided Playlist Name parameter", Objects.requireNonNull(result.getResolvedException()).getMessage()));
+            .andExpect(result -> assertEquals("Empty Playlist Name", Objects.requireNonNull(result.getResolvedException()).getMessage()));
   }
 
   @Test
