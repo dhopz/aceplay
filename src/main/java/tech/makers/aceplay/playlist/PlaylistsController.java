@@ -78,17 +78,17 @@ public class PlaylistsController {
   @GetMapping("/api/playlists/populartracks")
   public Iterable<Track> popularTracks() {
     Iterable<Playlist> allPlaylists = playlistRepository.findAll();
-    ArrayList<Track> tracksToReturn = new ArrayList<Track>();
+    ArrayList<Track> playlistTracks = new ArrayList<Track>();
 
     Long sessionUserId = sessionService.findUser().getId();
 
-    for(Track track : allTracks){
-      if(!track.getUser().getId().equals(sessionUserId)){
-        tracksToReturn.add(track);
+    for(Playlist playlist : allPlaylists){
+      if(!playlist.getUser().getId().equals(sessionUserId)){
+        for(Track track : playlist.getTracks())
+          playlistTracks.add(track);
       }
     }
-//   Iterable<Track> returnValue = tracksToReturn;
-    return tracksToReturn;
+    return playlistTracks;
   }
 
 }
