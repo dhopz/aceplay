@@ -24,7 +24,7 @@ public class TracksController {
   }
 
   @PostMapping("/api/tracks")
-  public Track create(@RequestBody TrackRequestModel trackRequestModel, @RequestHeader("authorization") String token) {
+  public Track create(@RequestBody TrackRequestModel trackRequestModel) {
     if (trackRequestModel.getArtist() == null || trackRequestModel.getArtist().isEmpty() || trackRequestModel.getArtist().trim().isEmpty()) {
       throw new EmptyFieldException("Empty Artist");
     }else{
