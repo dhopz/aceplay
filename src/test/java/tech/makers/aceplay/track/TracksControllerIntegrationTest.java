@@ -56,8 +56,8 @@ class TracksControllerIntegrationTest {
   @Test
   @WithMockUser
   void WhenLoggedIn_AndThereAreTracks_TracksIndexReturnsTracks() throws Exception {
-    repository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), userRepository.findByUsername("user")));
-    repository.save(new Track("Morning Light", "Girls", new URL("http://example.org/track.mp3"), userRepository.findByUsername("user")));
+    repository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3")));
+    repository.save(new Track("Morning Light", "Girls", new URL("http://example.org/track.mp3")));
 
     mvc.perform(MockMvcRequestBuilders.get("/api/tracks")
                     .contentType(MediaType.APPLICATION_JSON))
@@ -68,6 +68,19 @@ class TracksControllerIntegrationTest {
         .andExpect(jsonPath("$[0].artist").value("Yo La Tengo"))
         .andExpect(jsonPath("$[0].publicUrl").value("http://example.org/track.mp3"))
         .andExpect(jsonPath("$[1].title").value("Morning Light"));
+  }
+
+  @Test
+  @WithMockUser
+  void WhenLoggedIn_AndThereAreTracksCreatedByADifferentUser_TracksIndexReturnsNoTracks() throws Exception {
+    User otherUser = userRepository.save(new User("Jim", "pass"));
+    repository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), otherUser));
+
+    mvc.perform(MockMvcRequestBuilders.get("/api/tracks")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(0)));
   }
 
   @Test
@@ -197,5 +210,49 @@ class TracksControllerIntegrationTest {
         .andExpect(status().isForbidden());
 
     assertEquals(1, repository.count());
+  }
+
+
+  @Test
+  void WhenLoggedOut_TracksSuggestedTracksReturnsForbidden() throws Exception {
+    mvc.perform(MockMvcRequestBuilders.get("/api/tracks/suggestions").contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockUser
+  void WhenLoggedIn_AndThereAreNoTracks_TracksSuggestedTracksReturnsNoTracks() throws Exception {
+
+    mvc.perform(MockMvcRequestBuilders.get("/api/tracks/suggestions")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(0)));
+  }
+
+  @Test
+  @WithMockUser
+  void WhenLoggedIn_AndThereAreTracksNotCreatedByUser_TracksSuggestedTracksReturnsTracks() throws Exception {
+    repository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3")));
+
+    mvc.perform(MockMvcRequestBuilders.get("/api/tracks/suggestions")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].title").value("Blue Line Swinger"))
+            .andExpect(jsonPath("$[0].artist").value("Yo La Tengo"))
+            .andExpect(jsonPath("$[0].publicUrl").value("http://example.org/track.mp3"));
+  }
+
+  @Test
+  @WithMockUser
+  void WhenLoggedIn_AndThereAreTracksCreatedByUser_TracksSuggestedTracksReturnsNoTracks() throws Exception {
+    repository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), userRepository.findByUsername("user")));
+    mvc.perform(MockMvcRequestBuilders.get("/api/tracks/suggestions")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(0)));
   }
 }

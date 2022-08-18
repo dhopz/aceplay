@@ -66,10 +66,10 @@ class PlaylistsControllerIntegrationTest {
 
   @Test
   @WithMockUser
-  void WhenLoggedIn_AndThereArePlaylists_PlaylistIndexReturnsTracks() throws Exception {
-    Track track = trackRepository.save(new Track("Title", "Artist", new URL("https://example.org/"), userRepository.findByUsername("user")));
-    repository.save(new Playlist("My Playlist", Set.of(track), userRepository.findByUsername("user")));
-    repository.save(new Playlist("Their Playlist", userRepository.findByUsername("user")));
+  void WhenLoggedIn_AndThereArePlaylists_PlaylistIndexReturnsPlaylists() throws Exception {
+    Track track = trackRepository.save(new Track("Title", "Artist", new URL("https://example.org/")));
+    repository.save(new Playlist("My Playlist", Set.of(track)));
+    repository.save(new Playlist("Their Playlist"));
 
     mvc.perform(
             MockMvcRequestBuilders.get("/api/playlists"))
@@ -81,6 +81,20 @@ class PlaylistsControllerIntegrationTest {
          .andExpect(jsonPath("$[0].tracks[0].artist").value("Artist"))
          .andExpect(jsonPath("$[0].tracks[0].publicUrl").value("https://example.org/"))
          .andExpect(jsonPath("$[1].name").value("Their Playlist"));
+  }
+
+  @Test
+  @WithMockUser
+  void WhenLoggedIn_AndThereArePlaylistsCreatedByADifferentUser_PlaylistsIndexReturnsNoTracks() throws Exception {
+    User otherUser = userRepository.save(new User("Jim", "pass"));
+    Track track = trackRepository.save(new Track("Title", "Artist", new URL("https://example.org/"), otherUser));
+    repository.save(new Playlist("My Playlist", Set.of(track), otherUser));
+    repository.save(new Playlist("Their Playlist", otherUser));
+    mvc.perform(MockMvcRequestBuilders.get("/api/playlists")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(0)));
   }
 
   @Test

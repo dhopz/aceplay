@@ -7,6 +7,9 @@ import tech.makers.aceplay.EmptyFieldException;
 import tech.makers.aceplay.session.SessionService;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 // https://www.youtube.com/watch?v=5r3QU09v7ig&t=2410s
@@ -55,5 +58,21 @@ public class TracksController {
             .findById(id)
             .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No track exists with id " + id));
     trackRepository.delete(track);
+  }
+
+  @GetMapping("/api/tracks/suggestions")
+  public Iterable<Track> suggestedTracks() {
+    Iterable<Track> allTracks = trackRepository.findAll();
+    ArrayList<Track> tracksToReturn = new ArrayList<Track>();
+
+    Long sessionUserId = sessionService.findUser().getId();
+
+    for(Track track : allTracks){
+      if(!track.getUser().getId().equals(sessionUserId)){
+        tracksToReturn.add(track);
+      }
+    }
+//   Iterable<Track> returnValue = tracksToReturn;
+    return tracksToReturn;
   }
 }
