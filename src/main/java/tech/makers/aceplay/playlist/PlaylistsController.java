@@ -1,6 +1,8 @@
 package tech.makers.aceplay.playlist;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import tech.makers.aceplay.EmptyFieldException;
@@ -27,14 +29,24 @@ public class PlaylistsController {
     return playlistRepository.findByUser(sessionService.findUser());
   }
 
+//  @PostMapping("/api/playlists")
+//  public Playlist create(@RequestBody PlaylistRequestModel playlistRequestModel) {
+//    if(playlistRequestModel.getName() == null || playlistRequestModel.getName().isEmpty() || playlistRequestModel.getName().trim().isEmpty()){
+//      throw new EmptyFieldException("Empty Playlist Name");
+//    } else {
+//      Playlist playlist = new Playlist(playlistRequestModel.getName(), playlistRequestModel.getTracks());
+//      playlist.setUser(sessionService.findUser());
+//      return playlistRepository.save(playlist);
+//    }
+//  }
+
   @PostMapping("/api/playlists")
-  public Playlist create(@RequestBody PlaylistRequestModel playlistRequestModel) {
-    if(playlistRequestModel.getName() == null || playlistRequestModel.getName().isEmpty() || playlistRequestModel.getName().trim().isEmpty()){
+  public ResponseEntity<Object> createPlaylist(@RequestBody PlaylistRequestModel playlistRequestModel) {
+    if (playlistRequestModel.getName() == null || playlistRequestModel.getName().isEmpty() || playlistRequestModel.getName().trim().isEmpty()) {
       throw new EmptyFieldException("Empty Playlist Name");
     } else {
-      Playlist playlist = new Playlist(playlistRequestModel.getName(), playlistRequestModel.getTracks());
-      playlist.setUser(sessionService.findUser());
-      return playlistRepository.save(playlist);
+      PlaylistService.createPlaylist(new Playlist(playlistRequestModel.getName(), playlistRequestModel.getTracks()));
+      return new ResponseEntity<>("Playlist is created successfully", HttpStatus.CREATED);
     }
   }
 
