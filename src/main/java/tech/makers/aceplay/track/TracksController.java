@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import tech.makers.aceplay.EmptyFieldException;
+import tech.makers.aceplay.playlist.Playlist;
 import tech.makers.aceplay.session.SessionService;
 
 
@@ -11,12 +12,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import tech.makers.aceplay.playlist.PlaylistRepository;
 
 // https://www.youtube.com/watch?v=5r3QU09v7ig&t=2410s
 @RestController
 public class TracksController {
   @Autowired private TrackRepository trackRepository;
 
+  @Autowired private PlaylistRepository playlistRepository;
 
   @Autowired
   private SessionService sessionService;
@@ -60,19 +63,4 @@ public class TracksController {
     trackRepository.delete(track);
   }
 
-  @GetMapping("/api/tracks/suggestions")
-  public Iterable<Track> suggestedTracks() {
-    Iterable<Track> allTracks = trackRepository.findAll();
-    ArrayList<Track> tracksToReturn = new ArrayList<Track>();
-
-    Long sessionUserId = sessionService.findUser().getId();
-
-    for(Track track : allTracks){
-      if(!track.getUser().getId().equals(sessionUserId)){
-        tracksToReturn.add(track);
-      }
-    }
-//   Iterable<Track> returnValue = tracksToReturn;
-    return tracksToReturn;
-  }
 }

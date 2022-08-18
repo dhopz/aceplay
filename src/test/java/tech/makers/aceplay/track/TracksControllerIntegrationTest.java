@@ -16,6 +16,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import tech.makers.aceplay.playlist.Playlist;
+import tech.makers.aceplay.playlist.PlaylistRepository;
 import tech.makers.aceplay.track.Track;
 import tech.makers.aceplay.track.TrackRepository;
 import tech.makers.aceplay.user.User;
@@ -23,6 +25,7 @@ import tech.makers.aceplay.user.UserRepository;
 
 import java.util.Objects;
 import java.net.URL;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,6 +42,8 @@ class TracksControllerIntegrationTest {
   @Autowired private TrackRepository repository;
 
   @Autowired private UserRepository userRepository;
+
+  @Autowired private PlaylistRepository playlistRepository;
 
   private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
 
@@ -223,35 +228,6 @@ class TracksControllerIntegrationTest {
   @WithMockUser
   void WhenLoggedIn_AndThereAreNoTracks_TracksSuggestedTracksReturnsNoTracks() throws Exception {
 
-    mvc.perform(MockMvcRequestBuilders.get("/api/tracks/suggestions")
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$", hasSize(0)));
-  }
-
-  @Test
-  @WithMockUser
-  void WhenLoggedIn_AndThereAreTracksNotCreatedByUser_TracksSuggestedTracksReturnsTracks() throws Exception {
-    User mockInDataBase = userRepository.save(new User("user", "pass"));
-    User differentUser = userRepository.save(new User("Jim", "pass"));
-    repository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), differentUser));
-
-    mvc.perform(MockMvcRequestBuilders.get("/api/tracks/suggestions")
-                    .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$", hasSize(1)))
-            .andExpect(jsonPath("$[0].title").value("Blue Line Swinger"))
-            .andExpect(jsonPath("$[0].artist").value("Yo La Tengo"))
-            .andExpect(jsonPath("$[0].publicUrl").value("http://example.org/track.mp3"));
-  }
-
-  @Test
-  @WithMockUser
-  void WhenLoggedIn_AndThereAreOnlyTracksCreatedByUser_TracksSuggestedTracksReturnsNoTracks() throws Exception {
-    User mockInDataBase = userRepository.save(new User("user", "pass"));
-    repository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), mockInDataBase));
     mvc.perform(MockMvcRequestBuilders.get("/api/tracks/suggestions")
                     .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())

@@ -36,22 +36,7 @@ public class Track {
     this.user = user;
   }
 
-  public String checkTitleIsEmpty(String title) {
-    if (title == null || title.isEmpty() || title.trim().isEmpty()) {
-      return "New Title";
-    } else {
-      return title;
-    }
-  }
-
-  public String checkArtistIsEmpty(String artist) {
-    if (artist == null || artist.isEmpty() || artist.trim().isEmpty()) {
-      return "New Artist";
-    } else {
-      return artist;
-    }
-  }
-
+  
   public Track(String title, String artist, String publicUrl) throws MalformedURLException {
     this(title, artist, new URL(publicUrl));
   }

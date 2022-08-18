@@ -280,4 +280,74 @@ class PlaylistsControllerIntegrationTest {
 
     assertEquals(1, updatedPlaylist.getTracks().size());
   }
+
+  @Test
+  @WithMockUser
+  void WhenLoggedIn_AndThereAreTracksNotCreatedByUserAndTheyAreSavedToAPlaylist_PopularTracksReturnsTracks() throws Exception {
+    User mockInDataBase = userRepository.save(new User("user", "pass"));
+    User jim = userRepository.save(new User("Jim", "pass"));
+    Track blueLineSwingerJim = trackRepository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    repository.save(new Playlist("Playlist Jim", Set.of(blueLineSwingerJim), jim));
+
+    mvc.perform(MockMvcRequestBuilders.get("/api/playlists/populartracks")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].title").value("Blue Line Swinger"))
+            .andExpect(jsonPath("$[0].artist").value("Yo La Tengo"))
+            .andExpect(jsonPath("$[0].publicUrl").value("http://example.org/track.mp3"));
+  }
+
+  @Test
+  @WithMockUser
+  void WhenLoggedIn_AndThereAreNoTracksAddedToOtherUsersPlaylists_PopularTracksReturnsNoTracks() throws Exception {
+    User jim = userRepository.save(new User("Jim", "pass"));
+    repository.save(new Playlist("Playlist Jim", jim));
+
+    mvc.perform(MockMvcRequestBuilders.get("/api/playlists/populartracks")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(0)));
+  }
+
+  @Test
+  @WithMockUser
+  void WhenLoggedIn_AndOnlyTrackAddedIsToUsersOwnPlaylist_PopularTracksReturnsNoTracks() throws Exception {
+    User signedInUser = userRepository.save(new User("user", "pass"));
+    Track blueLineSwinger = trackRepository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), signedInUser));
+    repository.save(new Playlist("Playlist Jim", Set.of(blueLineSwinger), signedInUser));
+
+    mvc.perform(MockMvcRequestBuilders.get("/api/playlists/populartracks")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(0)));
+  }
+
+  @Test
+  @WithMockUser
+  void WhenLoggedIn_SeeListOfTracksAddedToTheMostPlaylists() throws Exception {
+    User signedInUser = userRepository.save(new User("user", "pass"));
+    User jim = userRepository.save(new User("Jim", "pass"));
+    User jane = userRepository.save(new User("jane", "pass"));
+    Track blueLineSwingerJim = trackRepository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track blueLineSwingerJane = trackRepository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), jane));
+    Track backstreetsBackJim = trackRepository.save(new Track("Backstreet's Back", "Backstreet Boys", new URL("http://example.org/track.mp3"), jim));
+    repository.save(new Playlist("Playlist Jim", Set.of(blueLineSwingerJim, backstreetsBackJim), jim));
+    repository.save(new Playlist("Playlist Jane", Set.of(blueLineSwingerJane), jane));
+
+
+    mvc.perform(MockMvcRequestBuilders.get("/api/playlists/populartracks")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(2)))
+            .andExpect(jsonPath("$[0].title").value("Blue Line Swinger"))
+            .andExpect(jsonPath("$[0].artist").value("Yo La Tengo"))
+            .andExpect(jsonPath("$[0].publicUrl").value("http://example.org/track.mp3"));
+  }
+
+
 }

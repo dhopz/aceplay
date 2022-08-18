@@ -47,21 +47,6 @@ public class Playlist {
     this.tracks = tracks;
   }
 
-  public String checkIfNameIsEmpty(String name) {
-    if (name == null || name.isEmpty() || name.trim().isEmpty()) {
-      throw new RuntimeException("Playlist must have a name");
-    } else {
-      return name;
-    }
-  }
-
-  public String randomPlaylistNameGenerator(){
-    String[] newNames = {"Cool","Random","Newbie","Awesome","MegaMix"};
-    Random r = new Random();
-    int randomNumber=r.nextInt(newNames.length);
-    return newNames[randomNumber] + " Playlist";
-
-  }
 
   public String getName() {
     return name;
