@@ -302,6 +302,7 @@ class PlaylistsControllerIntegrationTest {
   @Test
   @WithMockUser
   void WhenLoggedIn_AndThereAreNoTracksAddedToOtherUsersPlaylists_PopularTracksReturnsNoTracks() throws Exception {
+    User signedInUser = userRepository.save(new User("user", "pass"));
     User jim = userRepository.save(new User("Jim", "pass"));
     repository.save(new Playlist("Playlist Jim", jim));
 

@@ -10,6 +10,10 @@ import tech.makers.aceplay.track.TrackRepository;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -76,7 +80,7 @@ public class PlaylistsController {
   }
 
   @GetMapping("/api/playlists/populartracks")
-  public Iterable<Track> popularTracks() {
+  public Iterable<String> popularTracks() {
     Iterable<Playlist> allPlaylists = playlistRepository.findAll();
     ArrayList<Track> playlistTracks = new ArrayList<Track>();
 
@@ -88,7 +92,41 @@ public class PlaylistsController {
           playlistTracks.add(track);
       }
     }
-    return playlistTracks;
+    HashMap<String, Long> trackPopularity = new HashMap<String, Long>();
+
+    for (Track track : playlistTracks) {
+      String trackDetails = new String(track.getTitle() + " by " + track.getArtist());
+      trackPopularity.put(trackDetails, trackPopularity.containsKey(trackDetails) ? trackPopularity.get(trackDetails) + 1 : 1);
+    }
+    ArrayList<Long> ranking = new ArrayList<Long>();
+    for (Long value : trackPopularity.values()) {
+      ranking.add(value);
+    }
+    Collections.sort(ranking);
+
+    ArrayList<String> details = new ArrayList<String>();
+    for(int i = 0; i < ranking.size() -1;) {
+      for (HashMap.Entry<String, Long> entry : trackPopularity.entrySet()) {
+        System.out.println(entry.getValue());
+        System.out.println(ranking.get(i));
+        if (entry.getValue() == ranking.get(i)) {
+          details.add(entry.getKey());
+          i++;
+        }
+      }
+    }
+
+    int maxSize = ranking.size();
+
+    if (ranking.size() > 10) {
+      maxSize = 10;
+    }
+
+    List<String> top10 = details
+            .stream()
+            .limit(maxSize)
+            .collect(Collectors.toList());
+    return top10;
   }
 
 }
