@@ -345,9 +345,8 @@ class PlaylistsControllerIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$", hasSize(2)))
-            .andExpect(jsonPath("$[0].title").value("Blue Line Swinger"))
-            .andExpect(jsonPath("$[0].artist").value("Yo La Tengo"))
-            .andExpect(jsonPath("$[0].publicUrl").value("http://example.org/track.mp3"));
+            .andExpect(jsonPath("$[0]").value("Blue Line Swinger by Yo La Tengo"))
+            .andExpect(jsonPath("$[1]").value("Backstreet's Back by Backstreet Boys"));
   }
 
 

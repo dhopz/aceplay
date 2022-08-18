@@ -9,10 +9,7 @@ import tech.makers.aceplay.track.Track;
 import tech.makers.aceplay.track.TrackRepository;
 
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -90,24 +87,30 @@ public class PlaylistsController {
       if(!playlist.getUser().getId().equals(sessionUserId)){
         for(Track track : playlist.getTracks())
           playlistTracks.add(track);
+        System.out.println(playlistTracks);
       }
     }
     HashMap<String, Long> trackPopularity = new HashMap<String, Long>();
 
     for (Track track : playlistTracks) {
       String trackDetails = new String(track.getTitle() + " by " + track.getArtist());
+      System.out.println(trackDetails);
       trackPopularity.put(trackDetails, trackPopularity.containsKey(trackDetails) ? trackPopularity.get(trackDetails) + 1 : 1);
     }
     ArrayList<Long> ranking = new ArrayList<Long>();
     for (Long value : trackPopularity.values()) {
       ranking.add(value);
+      System.out.println(value);
     }
-    Collections.sort(ranking);
+    System.out.println("\n\n");
+    Collections.sort(ranking, Collections.reverseOrder());
 
     ArrayList<String> details = new ArrayList<String>();
     for(int i = 0; i < ranking.size() -1;) {
       for (HashMap.Entry<String, Long> entry : trackPopularity.entrySet()) {
         System.out.println(entry.getValue());
+        System.out.println(entry.getKey());
+
         System.out.println(ranking.get(i));
         if (entry.getValue() == ranking.get(i)) {
           details.add(entry.getKey());
@@ -115,6 +118,8 @@ public class PlaylistsController {
         }
       }
     }
+
+    System.out.println(details);
 
     int maxSize = ranking.size();
 
