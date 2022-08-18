@@ -233,7 +233,9 @@ class TracksControllerIntegrationTest {
   @Test
   @WithMockUser
   void WhenLoggedIn_AndThereAreTracksNotCreatedByUser_TracksSuggestedTracksReturnsTracks() throws Exception {
-    repository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3")));
+    User mockInDataBase = userRepository.save(new User("user", "pass"));
+    User differentUser = userRepository.save(new User("Jim", "pass"));
+    repository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), differentUser));
 
     mvc.perform(MockMvcRequestBuilders.get("/api/tracks/suggestions")
                     .contentType(MediaType.APPLICATION_JSON))
@@ -247,8 +249,9 @@ class TracksControllerIntegrationTest {
 
   @Test
   @WithMockUser
-  void WhenLoggedIn_AndThereAreTracksCreatedByUser_TracksSuggestedTracksReturnsNoTracks() throws Exception {
-    repository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), userRepository.findByUsername("user")));
+  void WhenLoggedIn_AndThereAreOnlyTracksCreatedByUser_TracksSuggestedTracksReturnsNoTracks() throws Exception {
+    User mockInDataBase = userRepository.save(new User("user", "pass"));
+    repository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), mockInDataBase));
     mvc.perform(MockMvcRequestBuilders.get("/api/tracks/suggestions")
                     .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
