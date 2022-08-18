@@ -28,12 +28,12 @@ public class PlaylistsController {
   }
 
   @PostMapping("/api/playlists")
-  public Playlist create(@RequestBody PlaylistRequestModel playlistRequestModel, @RequestHeader("authorization") String token) {
+  public Playlist create(@RequestBody PlaylistRequestModel playlistRequestModel) {
     if(playlistRequestModel.getName() == null || playlistRequestModel.getName().isEmpty() || playlistRequestModel.getName().trim().isEmpty()){
       throw new EmptyFieldException("Empty Playlist Name");
     } else {
       Playlist playlist = new Playlist(playlistRequestModel.getName(), playlistRequestModel.getTracks());
-      playlist.setUser(sessionService.findUser(token));
+      playlist.setUser(sessionService.findUser());
       return playlistRepository.save(playlist);
     }
   }

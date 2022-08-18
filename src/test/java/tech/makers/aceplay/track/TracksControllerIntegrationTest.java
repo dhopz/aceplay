@@ -81,8 +81,8 @@ class TracksControllerIntegrationTest {
   void WhenLoggedIn_TracksPostCreatesNewTrack() throws Exception {
     mvc.perform(
                     MockMvcRequestBuilders.post("/api/tracks")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"title\": \"Blue Line Swinger\", \"artist\": \"Yo La Tengo\", \"publicUrl\": \"https://example.org/track.mp3\"}"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"title\": \"Blue Line Swinger\", \"artist\": \"Yo La Tengo\", \"publicUrl\": \"https://example.org/track.mp3\"}"))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.title").value("Blue Line Swinger"))
@@ -95,23 +95,10 @@ class TracksControllerIntegrationTest {
   }
 
   @Test
+  @WithMockUser
   void WhenLoggedIn_TracksPostCreatesNewTrackNoArtist() throws Exception {
-    User kay = new User("kay", passwordEncoder.encode("pass"));
-    userRepository.save(kay);
-    MvcResult res =
-            mvc.perform(
-                            MockMvcRequestBuilders.post("/api/session")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content("{\"username\": \"kay\", \"password\": \"pass\"}"))
-                    .andExpect(status().isOk())
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.user.username").value("kay"))
-                    .andReturn();
-
-    String response = res.getResponse().getContentAsString();
-    String token = JsonPath.parse(response).read("$.token");
     mvc.perform(
-                    MockMvcRequestBuilders.post("/api/tracks").header("Authorization", token)
+                    MockMvcRequestBuilders.post("/api/tracks")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"title\": \"Blue Line Swinger\", \"artist\": \"\", \"publicUrl\": \"https://example.org/track.mp3\"}"))
             .andExpect(status().isBadRequest())
@@ -119,23 +106,10 @@ class TracksControllerIntegrationTest {
   }
 
   @Test
+  @WithMockUser
   void WhenLoggedIn_TracksPostCreatesNewTrackNoTitle() throws Exception {
-    User kay = new User("kay", passwordEncoder.encode("pass"));
-    userRepository.save(kay);
-    MvcResult res =
-            mvc.perform(
-                            MockMvcRequestBuilders.post("/api/session")
-                                    .contentType(MediaType.APPLICATION_JSON)
-                                    .content("{\"username\": \"kay\", \"password\": \"pass\"}"))
-                    .andExpect(status().isOk())
-                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.user.username").value("kay"))
-                    .andReturn();
-
-    String response = res.getResponse().getContentAsString();
-    String token = JsonPath.parse(response).read("$.token");
     mvc.perform(
-                    MockMvcRequestBuilders.post("/api/tracks").header("Authorization", token)
+                    MockMvcRequestBuilders.post("/api/tracks")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"title\": \"\", \"artist\": \"New Artist\", \"publicUrl\": \"https://example.org/track.mp3\"}"))
             .andExpect(status().isBadRequest())
