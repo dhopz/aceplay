@@ -41,9 +41,6 @@ public class TracksController {
 
   @DeleteMapping("/api/tracks/{id}")
   public void delete(@PathVariable Long id) {
-    Track track = trackRepository
-            .findById(id)
-            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No track exists with id " + id));
-    trackRepository.delete(track);
+    trackService.deleteTrack(id);
   }
 }

@@ -2,8 +2,11 @@ package tech.makers.aceplay.track;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import tech.makers.aceplay.EmptyFieldException;
 import tech.makers.aceplay.session.SessionService;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 public class TrackService {
@@ -25,5 +28,12 @@ public class TrackService {
                 return trackRepository.save(track);
             }
         }
+    }
+
+    public void deleteTrack(Long id){
+        Track track = trackRepository
+                .findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No track exists with id " + id));
+        trackRepository.delete(track);
     }
 }
