@@ -5,8 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import tech.makers.aceplay.EmptyFieldException;
 import tech.makers.aceplay.session.SessionService;
+import tech.makers.aceplay.track.Track;
+import tech.makers.aceplay.track.TrackRepository;
 
-import java.util.Collection;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -15,6 +16,8 @@ public class PlaylistService {
     public static final String NOPLAYLIST = "No playlist exists with id ";
 
     @Autowired PlaylistRepository playlistRepository;
+
+    @Autowired TrackRepository trackRepository;
 
     @Autowired SessionService sessionService;
 
@@ -38,6 +41,25 @@ public class PlaylistService {
                 .findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, NOPLAYLIST + id));
         playlistRepository.delete(playlist);
+    }
+
+    public void deleteTracks(Long playlistId, Long trackId){
+        Playlist playlist = playlistRepository.findById(playlistId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, NOPLAYLIST + playlistId));
+        Track track = trackRepository.findById(trackId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No track exists with id " + trackId));
+        playlist.getTracks().remove(track);
+        playlistRepository.save(playlist);
+    }
+
+    public Track addTrack(Long id, TrackIdentifierDto trackIdentifierDto){
+        Playlist playlist = playlistRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, NOPLAYLIST + id));
+    Track track = trackRepository.findById(trackIdentifierDto.getId())
+            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No track exists with id " + trackIdentifierDto.getId()));
+    playlist.getTracks().add(track);
+    playlistRepository.save(playlist);
+    return track;
     }
 
     public Iterable<Playlist> playlists() {

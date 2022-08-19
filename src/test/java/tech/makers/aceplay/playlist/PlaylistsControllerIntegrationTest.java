@@ -235,12 +235,9 @@ class PlaylistsControllerIntegrationTest {
 
     mvc.perform(
             MockMvcRequestBuilders.delete("/api/playlists/" + playlist.getId() + "/tracks/" + track.getId()))
-
             .andExpect(status().isOk());
 
     Playlist updatedPlaylist = repository.findById(playlist.getId()).orElseThrow();
-
-
     assertEquals(0, updatedPlaylist.getTracks().size());
   }
 
