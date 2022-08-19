@@ -295,8 +295,7 @@ class PlaylistsControllerIntegrationTest {
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$", hasSize(1)))
             .andExpect(jsonPath("$[0].title").value("Blue Line Swinger"))
-            .andExpect(jsonPath("$[0].artist").value("Yo La Tengo"))
-            .andExpect(jsonPath("$[0].publicUrl").value("http://example.org/track.mp3"));
+            .andExpect(jsonPath("$[0].artist").value("Yo La Tengo"));
   }
 
   @Test
@@ -333,20 +332,31 @@ class PlaylistsControllerIntegrationTest {
     User signedInUser = userRepository.save(new User("user", "pass"));
     User jim = userRepository.save(new User("Jim", "pass"));
     User jane = userRepository.save(new User("jane", "pass"));
+    User jemima = userRepository.save(new User("jemima", "pass"));
+
     Track blueLineSwingerJim = trackRepository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
     Track blueLineSwingerJane = trackRepository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), jane));
+    Track blueLineSwingerJemima = trackRepository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), jemima));
+    Track backstreetsBackJane = trackRepository.save(new Track("Backstreet's Back", "Backstreet Boys", new URL("http://example.org/track.mp3"), jane));
     Track backstreetsBackJim = trackRepository.save(new Track("Backstreet's Back", "Backstreet Boys", new URL("http://example.org/track.mp3"), jim));
-    repository.save(new Playlist("Playlist Jim", Set.of(blueLineSwingerJim, backstreetsBackJim), jim));
-    repository.save(new Playlist("Playlist Jane", Set.of(blueLineSwingerJane), jane));
+    Track twistAndShoutJim = trackRepository.save(new Track("Twist and Shout", "The Beatles", new URL("http://example.org/track.mp3"), jim));
+
+    repository.save(new Playlist("Playlist Jim", Set.of(blueLineSwingerJim, backstreetsBackJim, twistAndShoutJim), jim));
+    repository.save(new Playlist("Playlist Jane", Set.of(blueLineSwingerJane, backstreetsBackJane), jane));
+    repository.save(new Playlist("Playlist Jemima", Set.of(blueLineSwingerJemima), jemima));
 
 
     mvc.perform(MockMvcRequestBuilders.get("/api/playlists/populartracks")
                     .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$", hasSize(2)))
-            .andExpect(jsonPath("$[0]").value("Blue Line Swinger by Yo La Tengo"))
-            .andExpect(jsonPath("$[1]").value("Backstreet's Back by Backstreet Boys"));
+            .andExpect(jsonPath("$", hasSize(3)))
+            .andExpect(jsonPath("$[0].title").value("Blue Line Swinger"))
+            .andExpect(jsonPath("$[0].artist").value("Yo La Tengo"))
+            .andExpect(jsonPath("$[1].title").value("Backstreet's Back"))
+            .andExpect(jsonPath("$[1].artist").value("Backstreet Boys"))
+            .andExpect(jsonPath("$[2].title").value("Twist and Shout"))
+            .andExpect(jsonPath("$[2].artist").value("The Beatles"));
   }
 
   @Test
@@ -364,6 +374,39 @@ class PlaylistsControllerIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$", hasSize(0)));
+  }
+
+  @Test
+  @WithMockUser
+  void WhenLoggedIn_AndMoreThanTenTracksInOtherUsersPlaylists_PopularTracksReturnsTenTracks() throws Exception {
+    User signedInUser = userRepository.save(new User("user", "pass"));
+    User jim = userRepository.save(new User("Jim", "pass"));
+    Track a = trackRepository.save(new Track("A", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track b = trackRepository.save(new Track("B", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track c = trackRepository.save(new Track("C", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track d = trackRepository.save(new Track("D", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track e = trackRepository.save(new Track("E", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track f = trackRepository.save(new Track("F", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track g = trackRepository.save(new Track("G", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track h = trackRepository.save(new Track("H", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track i = trackRepository.save(new Track("I", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track j = trackRepository.save(new Track("J", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track k = trackRepository.save(new Track("K", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track l = trackRepository.save(new Track("L", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track m = trackRepository.save(new Track("M", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track n = trackRepository.save(new Track("N", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track o = trackRepository.save(new Track("O", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track p = trackRepository.save(new Track("P", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track q = trackRepository.save(new Track("Q", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+
+    repository.save(new Playlist("Playlist Jim", Set.of(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q), jim));
+
+
+    mvc.perform(MockMvcRequestBuilders.get("/api/playlists/populartracks")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(10)));
   }
 
 }

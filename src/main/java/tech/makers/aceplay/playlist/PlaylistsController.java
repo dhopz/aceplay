@@ -77,7 +77,7 @@ public class PlaylistsController {
   }
 
   @GetMapping("/api/playlists/populartracks")
-  public Iterable<String> popularTracks() {
+  public Iterable<Track> popularTracks() {
     Iterable<Playlist> allPlaylists = playlistRepository.findAll();
     ArrayList<Track> playlistTracks = new ArrayList<>();
     Long sessionUserId = sessionService.findUser().getId();
@@ -88,7 +88,6 @@ public class PlaylistsController {
       if(!playlist.getUser().getId().equals(sessionUserId)){
         for(Track track : playlist.getTracks())
           playlistTracks.add(track);
-        System.out.println(playlistTracks);
       }
     }
 
@@ -97,59 +96,27 @@ public class PlaylistsController {
       ownTrackDetails.add(trackDetails);
     }
 
-//    Track a = new Track ("Title", "Artist");
-//    Track b = new Track ("Title", "Artist");
-//    String c = new String("abc");
-//    String d = new String("abc");
-//
-//      System.out.println(a);
-//      System.out.println(b);
-//
-//      if(a.toString() == b.toString()) {
-//        System.out.println("True true true");
-//      }
     HashMap<String, Long> trackPopularity = new HashMap<String, Long>();
 
     for (Track track : playlistTracks) {
-      String trackDetails = new String(track.getTitle() + " by " + track.getArtist());
-//      Track hashKeyTrack = new Track(track.getTitle(), track.getArtist());
-      System.out.println(trackDetails);
+      String trackDetails = track.getTitle() + " by " + track.getArtist();
       if(!ownTrackDetails.contains(trackDetails)) {
         trackPopularity.put(trackDetails, trackPopularity.containsKey(trackDetails) ? trackPopularity.get(trackDetails) + 1 : 1);
       }
     }
 
-    ArrayList<Long> ranking = new ArrayList<Long>();
-    for (Long value : trackPopularity.values()) {
-      ranking.add(value);
-      System.out.println(value);
-    }
-    System.out.println("\n\n");
-    Collections.sort(ranking, Collections.reverseOrder());
+    ArrayList<Map.Entry<String,Integer>> popularityOfNewTracks = new ArrayList(trackPopularity.entrySet());
+    Collections.sort(popularityOfNewTracks, Collections.reverseOrder(Comparator.comparing(Map.Entry::getValue)));
 
-    ArrayList<String> details = new ArrayList<String>();
-    for(int i = 0; i < ranking.size() -1;) {
-      for (HashMap.Entry<String, Long> entry : trackPopularity.entrySet()) {
-        System.out.println(entry.getValue());
-        System.out.println(entry.getKey());
+    int maxSize = popularityOfNewTracks.size() > 10 ? 10 : popularityOfNewTracks.size();
 
-        System.out.println(ranking.get(i));
-        if (entry.getValue() == ranking.get(i)) {
-          details.add(entry.getKey());
-          i++;
-        }
-      }
+    ArrayList<Track> tracksToReturn = new ArrayList<>();
+    for (Map.Entry<String,Integer> entry: popularityOfNewTracks) {
+      String[] details = entry.getKey().split(" by ");
+      tracksToReturn.add(new Track(details[0], details[1]));
     }
 
-    System.out.println(details);
-
-    int maxSize = ranking.size();
-
-    if (ranking.size() > 10) {
-      maxSize = 10;
-    }
-
-    List<String> top10 = details
+    List<Track> top10 = tracksToReturn
             .stream()
             .limit(maxSize)
             .collect(Collectors.toList());
