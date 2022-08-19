@@ -1,16 +1,14 @@
 package tech.makers.aceplay.playlist;
 
-import java.util.Collection;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-public interface PlaylistService {
+@Service
+public class PlaylistService {
 
+    @Autowired PlaylistRepository playlistRepository;
 
-    static void createPlaylist(Playlist playlist) {
+    public Playlist addPlaylist(Playlist playlist) {
+        return playlistRepository.save(playlist);
     }
-
-
-
-    public abstract void updatePlaylist(Long id, Playlist playlist);
-    public abstract void deletePlaylist(Long id);
-    public abstract Collection<Playlist> getPlaylists();
 }
