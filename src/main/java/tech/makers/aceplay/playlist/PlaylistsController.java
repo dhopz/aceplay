@@ -42,17 +42,6 @@ public class PlaylistsController {
     return playlistService.addPlaylist(playlistRequestModel);
   }
 
-//  @PostMapping("/api/playlists")
-//  public Playlist create(@RequestBody PlaylistRequestModel playlistRequestModel) {
-//    if(playlistRequestModel.getName() == null || playlistRequestModel.getName().isEmpty() || playlistRequestModel.getName().trim().isEmpty()){
-//      throw new EmptyFieldException("Empty Playlist Name");
-//    } else {
-//      Playlist playlist = new Playlist(playlistRequestModel.getName(), playlistRequestModel.getTracks());
-//      playlist.setUser(sessionService.findUser());
-//      return PlaylistService.createPlaylist(playlist);
-//    }
-//  }
-//
 //  @GetMapping("/api/playlists/{id}")
 //  public Playlist get(@PathVariable Long id) {
 //    return playlistRepository.findById(id)
@@ -80,11 +69,8 @@ public class PlaylistsController {
 //    playlistRepository.save(playlist);
 //  }
 //
-//  @DeleteMapping("/api/playlists/{id}")
-//  public void delete(@PathVariable Long id) {
-//    Playlist playlist = playlistRepository
-//            .findById(id)
-//            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, NOPLAYLIST + id));
-//    playlistRepository.delete(playlist);
-//  }
+  @DeleteMapping("/api/playlists/{id}")
+  public void delete(@PathVariable Long id) {
+    playlistService.deletePlaylist(id);
+  }
 }
