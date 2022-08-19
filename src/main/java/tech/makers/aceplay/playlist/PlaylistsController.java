@@ -31,14 +31,14 @@ public class PlaylistsController {
   private PlaylistService playlistService;
 
 
-//  @GetMapping("/api/playlists")
-//  public Iterable<Playlist> playlists() {
-//    return playlistRepository.findByUser(sessionService.findUser());
-//  }
+  @GetMapping("/api/playlists")
+  public Iterable<Playlist> playlists() {
+    return playlistService.playlists();
+  }
 
   @PostMapping("/api/playlists")
   public Playlist createPlaylist(@RequestBody PlaylistRequestModel playlistRequestModel) {
-    playlistRequestModel.setUser(sessionService.findUser());
+//    playlistRequestModel.setUser(sessionService.findUser());
     return playlistService.addPlaylist(playlistRequestModel);
   }
 
@@ -59,16 +59,16 @@ public class PlaylistsController {
 //    return track;
 //  }
 //
-//  @DeleteMapping("/api/playlists/{playlist_id}/tracks/{track_id}")
-//  public void delete(@PathVariable Long playlist_id, @PathVariable Long track_id) {
-//    Playlist playlist = playlistRepository.findById(playlist_id)
-//            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, NOPLAYLIST + playlist_id));
-//    Track track = trackRepository.findById(track_id)
-//            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No track exists with id " + track_id));
-//    playlist.getTracks().remove(track);
-//    playlistRepository.save(playlist);
-//  }
-//
+  @DeleteMapping("/api/playlists/{playlist_id}/tracks/{track_id}")
+  public void delete(@PathVariable Long playlistId, @PathVariable Long trackId) {
+    Playlist playlist = playlistRepository.findById(playlistId)
+            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, NOPLAYLIST + playlistId));
+    Track track = trackRepository.findById(trackId)
+            .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No track exists with id " + trackId));
+    playlist.getTracks().remove(track);
+    playlistRepository.save(playlist);
+  }
+
   @DeleteMapping("/api/playlists/{id}")
   public void delete(@PathVariable Long id) {
     playlistService.deletePlaylist(id);
