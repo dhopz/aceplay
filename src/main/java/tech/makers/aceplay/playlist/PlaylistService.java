@@ -28,6 +28,11 @@ public class PlaylistService {
         }
     }
 
+    public Playlist findPlaylist(Long id){
+        return playlistRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, NOPLAYLIST + id));
+    }
+
     public void deletePlaylist(Long id){
         Playlist playlist = playlistRepository
                 .findById(id)

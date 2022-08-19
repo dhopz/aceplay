@@ -38,15 +38,13 @@ public class PlaylistsController {
 
   @PostMapping("/api/playlists")
   public Playlist createPlaylist(@RequestBody PlaylistRequestModel playlistRequestModel) {
-//    playlistRequestModel.setUser(sessionService.findUser());
     return playlistService.addPlaylist(playlistRequestModel);
   }
 
-//  @GetMapping("/api/playlists/{id}")
-//  public Playlist get(@PathVariable Long id) {
-//    return playlistRepository.findById(id)
-//        .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, NOPLAYLIST + id));
-//  }
+  @GetMapping("/api/playlists/{id}")
+  public Playlist get(@PathVariable Long id) {
+    return playlistService.findPlaylist(id);
+  }
 //
 //  @PutMapping("/api/playlists/{id}/tracks")
 //  public Track addTrack(@PathVariable Long id, @RequestBody TrackIdentifierDto trackIdentifierDto) {
