@@ -2,6 +2,7 @@ package tech.makers.aceplay.track;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 import tech.makers.aceplay.EmptyFieldException;
 import tech.makers.aceplay.session.SessionService;
@@ -35,5 +36,19 @@ public class TrackService {
                 .findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No track exists with id " + id));
         trackRepository.delete(track);
+    }
+
+    public Track updateTrack(Long id, TrackRequestModel trackRequestModel){
+        Track track = trackRepository
+                .findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No track exists with id " + id));
+        track.setTitle(trackRequestModel.getTitle());
+        track.setArtist(trackRequestModel.getArtist());
+        trackRepository.save(track);
+        return track;
+    }
+
+    public Iterable<Track> allTracks() {
+        return trackRepository.findByUser(sessionService.findUser());
     }
 }
