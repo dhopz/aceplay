@@ -14,7 +14,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class TracksController {
   @Autowired private TrackRepository trackRepository;
 
-
+  @Autowired private TrackService trackService;
   @Autowired
   private SessionService sessionService;
 
@@ -25,17 +25,7 @@ public class TracksController {
 
   @PostMapping("/api/tracks")
   public Track create(@RequestBody TrackRequestModel trackRequestModel) {
-    if (trackRequestModel.getArtist() == null || trackRequestModel.getArtist().isEmpty() || trackRequestModel.getArtist().trim().isEmpty()) {
-      throw new EmptyFieldException("Empty Artist");
-    }else{
-      if (trackRequestModel.getTitle() == null || trackRequestModel.getTitle().isEmpty() || trackRequestModel.getTitle().trim().isEmpty()) {
-        throw new EmptyFieldException("Empty Title");
-      }else {
-        Track track = new Track(trackRequestModel.getTitle(), trackRequestModel.getArtist(), trackRequestModel.getPublicUrl());
-        track.setUser(sessionService.findUser());
-        return trackRepository.save(track);
-      }
-    }
+    return trackService.createTrack(trackRequestModel);
   }
 
   @PatchMapping("/api/tracks/{id}")
