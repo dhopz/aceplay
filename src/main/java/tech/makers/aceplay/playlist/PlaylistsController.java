@@ -79,9 +79,10 @@ public class PlaylistsController {
   @GetMapping("/api/playlists/populartracks")
   public Iterable<String> popularTracks() {
     Iterable<Playlist> allPlaylists = playlistRepository.findAll();
-    ArrayList<Track> playlistTracks = new ArrayList<Track>();
-
+    ArrayList<Track> playlistTracks = new ArrayList<>();
     Long sessionUserId = sessionService.findUser().getId();
+    Iterable<Track> ownTracks = trackRepository.findByUser(sessionService.findUser());
+    ArrayList<String> ownTrackDetails = new ArrayList<>();
 
     for(Playlist playlist : allPlaylists){
       if(!playlist.getUser().getId().equals(sessionUserId)){
@@ -90,13 +91,34 @@ public class PlaylistsController {
         System.out.println(playlistTracks);
       }
     }
+
+    for (Track track : ownTracks) {
+      String trackDetails = track.getTitle() + " by " + track.getArtist();
+      ownTrackDetails.add(trackDetails);
+    }
+
+//    Track a = new Track ("Title", "Artist");
+//    Track b = new Track ("Title", "Artist");
+//    String c = new String("abc");
+//    String d = new String("abc");
+//
+//      System.out.println(a);
+//      System.out.println(b);
+//
+//      if(a.toString() == b.toString()) {
+//        System.out.println("True true true");
+//      }
     HashMap<String, Long> trackPopularity = new HashMap<String, Long>();
 
     for (Track track : playlistTracks) {
       String trackDetails = new String(track.getTitle() + " by " + track.getArtist());
+//      Track hashKeyTrack = new Track(track.getTitle(), track.getArtist());
       System.out.println(trackDetails);
-      trackPopularity.put(trackDetails, trackPopularity.containsKey(trackDetails) ? trackPopularity.get(trackDetails) + 1 : 1);
+      if(!ownTrackDetails.contains(trackDetails)) {
+        trackPopularity.put(trackDetails, trackPopularity.containsKey(trackDetails) ? trackPopularity.get(trackDetails) + 1 : 1);
+      }
     }
+
     ArrayList<Long> ranking = new ArrayList<Long>();
     for (Long value : trackPopularity.values()) {
       ranking.add(value);

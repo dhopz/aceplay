@@ -349,5 +349,21 @@ class PlaylistsControllerIntegrationTest {
             .andExpect(jsonPath("$[1]").value("Backstreet's Back by Backstreet Boys"));
   }
 
+  @Test
+  @WithMockUser
+  void WhenLoggedIn_OnlyDuplicatesOfTracksFromOwnLibraryInOtherPlaylists_PopularTracksReturnsNoTracks() throws Exception {
+    User signedInUser = userRepository.save(new User("user", "pass"));
+    User jim = userRepository.save(new User("Jim", "pass"));
+    Track blueLineSwingerJim = trackRepository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), jim));
+    Track blueLineSwingerSignedInUser = trackRepository.save(new Track("Blue Line Swinger", "Yo La Tengo", new URL("http://example.org/track.mp3"), signedInUser));
+    repository.save(new Playlist("Playlist Jim", Set.of(blueLineSwingerJim), jim));
+
+
+    mvc.perform(MockMvcRequestBuilders.get("/api/playlists/populartracks")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(0)));
+  }
 
 }
