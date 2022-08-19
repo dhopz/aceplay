@@ -10,6 +10,7 @@ import tech.makers.aceplay.track.TrackRepository;
 
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -81,46 +82,32 @@ public class PlaylistsController {
     Iterable<Playlist> allPlaylists = playlistRepository.findAll();
     ArrayList<Track> playlistTracks = new ArrayList<>();
     Long sessionUserId = sessionService.findUser().getId();
-    Iterable<Track> ownTracks = trackRepository.findByUser(sessionService.findUser());
-    ArrayList<String> ownTrackDetails = new ArrayList<>();
+    ArrayList<Track> ownTracks = new ArrayList<>();
+    for (Track track : trackRepository.findByUser(sessionService.findUser())) { ownTracks.add(track);}
 
     for(Playlist playlist : allPlaylists){
       if(!playlist.getUser().getId().equals(sessionUserId)){
-        for(Track track : playlist.getTracks())
-          playlistTracks.add(track);
+        for(Track track : playlist.getTracks()) {
+          if (ownTracks.stream().noneMatch(ownTrack -> ownTrack.getTitle() == track.getTitle() && ownTrack.getArtist() == track.getArtist())) {
+            playlistTracks.add(track);
+          }
+        }
       }
     }
 
-    for (Track track : ownTracks) {
-      String trackDetails = track.getTitle() + " by " + track.getArtist();
-      ownTrackDetails.add(trackDetails);
-    }
-
-    HashMap<String, Long> trackPopularity = new HashMap<String, Long>();
-
+    HashMap<String, Long> trackPopularity = new HashMap<>();
     for (Track track : playlistTracks) {
-      String trackDetails = track.getTitle() + " by " + track.getArtist();
-      if(!ownTrackDetails.contains(trackDetails)) {
-        trackPopularity.put(trackDetails, trackPopularity.containsKey(trackDetails) ? trackPopularity.get(trackDetails) + 1 : 1);
-      }
+      String trackDetails = track.getTitle() + "\n" + track.getArtist();
+      trackPopularity.put(trackDetails, trackPopularity.containsKey(trackDetails) ? trackPopularity.get(trackDetails) + 1 : 1);
     }
-
     ArrayList<Map.Entry<String,Integer>> popularityOfNewTracks = new ArrayList(trackPopularity.entrySet());
-    Collections.sort(popularityOfNewTracks, Collections.reverseOrder(Comparator.comparing(Map.Entry::getValue)));
-
-    int maxSize = popularityOfNewTracks.size() > 10 ? 10 : popularityOfNewTracks.size();
+    popularityOfNewTracks.sort(Collections.reverseOrder(Map.Entry.comparingByValue()));
 
     ArrayList<Track> tracksToReturn = new ArrayList<>();
     for (Map.Entry<String,Integer> entry: popularityOfNewTracks) {
-      String[] details = entry.getKey().split(" by ");
-      tracksToReturn.add(new Track(details[0], details[1]));
+      tracksToReturn.add(new Track(entry.getKey().split("\n")[0], entry.getKey().split("\n")[1]));
     }
-
-    List<Track> top10 = tracksToReturn
-            .stream()
-            .limit(maxSize)
-            .collect(Collectors.toList());
-    return top10;
+    return tracksToReturn.stream().limit(Math.min(popularityOfNewTracks.size(), 10)).collect(Collectors.toList());
   }
 
 }
