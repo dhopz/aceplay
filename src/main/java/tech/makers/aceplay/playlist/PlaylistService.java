@@ -8,7 +8,8 @@ public class PlaylistService {
 
     @Autowired PlaylistRepository playlistRepository;
 
-    public Playlist addPlaylist(Playlist playlist) {
+    public Playlist addPlaylist(PlaylistRequestModel playlistRequestModel) {
+        Playlist playlist = new Playlist(playlistRequestModel.getName(), playlistRequestModel.getTracks(),playlistRequestModel.getUser());
         return playlistRepository.save(playlist);
     }
 }

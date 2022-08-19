@@ -37,9 +37,9 @@ public class PlaylistsController {
 //  }
 
   @PostMapping("/api/playlists")
-  public Playlist createPlaylist(@RequestBody Playlist playlist) {
-    playlist.setUser(sessionService.findUser());
-    return playlistService.addPlaylist(playlist);
+  public Playlist createPlaylist(@RequestBody PlaylistRequestModel playlistRequestModel) {
+    playlistRequestModel.setUser(sessionService.findUser());
+    return playlistService.addPlaylist(playlistRequestModel);
   }
 
 //  @PostMapping("/api/playlists")
