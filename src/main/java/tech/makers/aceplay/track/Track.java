@@ -85,6 +85,10 @@ public class Track {
   public User getUser() {
     return user;
   }
+
+  public boolean equals(Track otherTrack) {
+    return this.artist.equals(otherTrack.getArtist()) && this.title.equals(otherTrack.getTitle());
+  }
 }
 
 

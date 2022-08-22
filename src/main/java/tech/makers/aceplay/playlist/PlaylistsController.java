@@ -88,7 +88,7 @@ public class PlaylistsController {
     for(Playlist playlist : allPlaylists){
       if(!playlist.getUser().getId().equals(sessionUserId)){
         for(Track track : playlist.getTracks()) {
-          if (ownTracks.stream().noneMatch(ownTrack -> ownTrack.getTitle() == track.getTitle() && ownTrack.getArtist() == track.getArtist())) {
+          if (ownTracks.stream().noneMatch(ownTrack -> ownTrack.equals(track))) {
             playlistTracks.add(track);
           }
         }
